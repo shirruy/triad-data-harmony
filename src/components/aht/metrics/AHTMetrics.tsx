@@ -22,8 +22,8 @@ export const AHTMetrics = () => {
   const handleMetricClick = (type: 'total' | 'answered' | 'abandoned') => {
     switch(type) {
       case 'total':
-        navigate('/team-performance');
-        toast.info("Viewing total calls breakdown by team");
+        navigate('/total-calls');
+        toast.info("Viewing total calls breakdown by team and agent");
         break;
       case 'answered':
         navigate('/agent-performance');
