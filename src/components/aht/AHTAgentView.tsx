@@ -18,15 +18,19 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
         .order('value', { ascending: false });
 
       if (startDate && endDate) {
+        const formattedStartDate = format(startDate, 'yyyy-MM-dd');
+        const formattedEndDate = format(endDate, 'yyyy-MM-dd');
+        
         query = query
-          .gte('created_at', format(startDate, 'yyyy-MM-dd'))
-          .lte('created_at', format(endDate, 'yyyy-MM-dd'));
+          .gte('created_at', `${formattedStartDate}T00:00:00`)
+          .lte('created_at', `${formattedEndDate}T23:59:59`);
       }
 
       const { data, error } = await query;
       if (error) throw error;
       return data;
-    }
+    },
+    enabled: true // This ensures the query runs even when dates are undefined
   });
 
   if (isLoading) {
@@ -49,7 +53,7 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
             </thead>
             <tbody>
               {agentData?.map((agent) => (
-                <tr key={agent.agent_name}>
+                <tr key={`${agent.agent_name}-${agent.id}`}>
                   <td className="border px-4 py-2">{agent.agent_name}</td>
                   <td className="border px-4 py-2">{agent.value.toLocaleString()}</td>
                 </tr>

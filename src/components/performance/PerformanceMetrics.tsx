@@ -8,13 +8,6 @@ interface PerformanceMetricsProps {
   endDate?: Date;
 }
 
-interface MetricData {
-  id: string;
-  name: string;
-  value: number;
-  created_at: string;
-}
-
 export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsProps) => {
   const { data: performanceData, isLoading } = useQuery({
     queryKey: ['performance-metrics', startDate, endDate],
@@ -25,15 +18,19 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
         .order('created_at', { ascending: false });
 
       if (startDate && endDate) {
+        const formattedStartDate = format(startDate, 'yyyy-MM-dd');
+        const formattedEndDate = format(endDate, 'yyyy-MM-dd');
+        
         query = query
-          .gte('created_at', format(startDate, 'yyyy-MM-dd'))
-          .lte('created_at', format(endDate, 'yyyy-MM-dd'));
+          .gte('created_at', `${formattedStartDate}T00:00:00`)
+          .lte('created_at', `${formattedEndDate}T23:59:59`);
       }
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as MetricData[];
-    }
+      return data;
+    },
+    enabled: true // This ensures the query runs even when dates are undefined
   });
 
   if (isLoading) {
