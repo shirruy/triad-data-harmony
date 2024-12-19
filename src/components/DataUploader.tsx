@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 import { Upload } from "lucide-react";
+import * as XLSX from 'xlsx';
 
 export const DataUploader = () => {
   const { toast } = useToast();
@@ -14,44 +15,74 @@ export const DataUploader = () => {
 
     setIsUploading(true);
     try {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const content = e.target?.result as string;
-          const data = JSON.parse(content);
-          console.log("Uploaded data:", data);
-          
-          toast({
-            title: "Data uploaded successfully",
-            description: "Your data has been processed and is ready to use.",
-            variant: "default",
-          });
-        } catch (error) {
-          toast({
-            title: "Error parsing data",
-            description: "Please ensure your file contains valid JSON data.",
-            variant: "destructive",
-          });
-        }
-      };
-
-      reader.readAsText(file);
+      const fileExtension = file.name.split('.').pop()?.toLowerCase();
+      
+      if (fileExtension === 'json') {
+        // Handle JSON files
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const content = e.target?.result as string;
+            const data = JSON.parse(content);
+            console.log("Uploaded JSON data:", data);
+            showSuccessToast();
+          } catch (error) {
+            showErrorToast("Error parsing JSON data");
+          }
+        };
+        reader.readAsText(file);
+      } else if (['csv', 'xlsx', 'xls'].includes(fileExtension || '')) {
+        // Handle CSV and Excel files
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = new Uint8Array(e.target?.result as ArrayBuffer);
+            const workbook = XLSX.read(data, { type: 'array' });
+            
+            // Get the first worksheet
+            const worksheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[worksheetName];
+            
+            // Convert to JSON
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            console.log(`Uploaded ${fileExtension?.toUpperCase()} data:`, jsonData);
+            showSuccessToast();
+          } catch (error) {
+            showErrorToast(`Error parsing ${fileExtension?.toUpperCase()} file`);
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      } else {
+        showErrorToast("Unsupported file format");
+      }
     } catch (error) {
-      toast({
-        title: "Upload failed",
-        description: "There was an error uploading your file.",
-        variant: "destructive",
-      });
+      showErrorToast("Upload failed");
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const showSuccessToast = () => {
+    toast({
+      title: "Data uploaded successfully",
+      description: "Your data has been processed and is ready to use.",
+      variant: "default",
+    });
+  };
+
+  const showErrorToast = (message: string) => {
+    toast({
+      title: "Upload failed",
+      description: message,
+      variant: "destructive",
+    });
   };
 
   return (
     <div className="flex items-center gap-4">
       <Input
         type="file"
-        accept=".json"
+        accept=".json,.csv,.xlsx,.xls"
         onChange={handleFileUpload}
         className="max-w-xs"
         disabled={isUploading}
