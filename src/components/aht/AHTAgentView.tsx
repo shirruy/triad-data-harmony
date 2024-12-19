@@ -14,8 +14,7 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
     queryFn: async () => {
       let query = supabase
         .from('aht_agent_data')
-        .select('*')
-        .order('value', { ascending: false });
+        .select('agent_name, value, id')
 
       if (startDate && endDate) {
         const formattedStartDate = format(startDate, 'yyyy-MM-dd');
@@ -28,9 +27,21 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+
+      // Aggregate data by agent_name
+      const aggregatedData = data?.reduce((acc, curr) => {
+        const existingAgent = acc.find(a => a.agent_name === curr.agent_name);
+        if (existingAgent) {
+          existingAgent.value += curr.value;
+        } else {
+          acc.push({ ...curr });
+        }
+        return acc;
+      }, [] as typeof data);
+
+      return aggregatedData?.sort((a, b) => b.value - a.value) || [];
     },
-    enabled: true // This ensures the query runs even when dates are undefined
+    enabled: true
   });
 
   if (isLoading) {

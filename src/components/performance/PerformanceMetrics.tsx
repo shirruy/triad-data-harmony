@@ -14,8 +14,7 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
     queryFn: async () => {
       let query = supabase
         .from('performance_metrics')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('name, value, id')
 
       if (startDate && endDate) {
         const formattedStartDate = format(startDate, 'yyyy-MM-dd');
@@ -28,9 +27,21 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+
+      // Aggregate data by metric name
+      const aggregatedData = data?.reduce((acc, curr) => {
+        const existingMetric = acc.find(m => m.name === curr.name);
+        if (existingMetric) {
+          existingMetric.value += curr.value;
+        } else {
+          acc.push({ ...curr });
+        }
+        return acc;
+      }, [] as typeof data);
+
+      return aggregatedData?.sort((a, b) => b.value - a.value) || [];
     },
-    enabled: true // This ensures the query runs even when dates are undefined
+    enabled: true
   });
 
   if (isLoading) {
@@ -43,7 +54,7 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
         <h2 className="text-lg font-semibold">Performance Metrics</h2>
         <div className="mt-4">
           {performanceData?.map((metric) => (
-            <div key={metric.id} className="flex justify-between">
+            <div key={`${metric.name}-${metric.id}`} className="flex justify-between">
               <span>{metric.name}</span>
               <span>{metric.value.toLocaleString()}</span>
             </div>
