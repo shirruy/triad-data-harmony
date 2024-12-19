@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AHTInsight } from "@/components/AHTInsight";
 import { AHTMetrics } from "@/components/AHTMetrics";
 import { AHTCharts } from "@/components/AHTCharts";
+import { AHTDataUpload } from "@/components/AHTDataUpload";
 
 const Index = () => {
   const { userData } = useAuth();
@@ -18,6 +19,9 @@ const Index = () => {
         <div className="bg-blue-600 text-white p-3 rounded-lg">
           <p className="text-sm">Data was updated 4 hours ago</p>
         </div>
+
+        {/* Data Upload Section - Only visible to admin and analysts */}
+        {canEdit && <AHTDataUpload />}
 
         {/* AHT Insight Card */}
         <AHTInsight />
