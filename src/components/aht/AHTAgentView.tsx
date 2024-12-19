@@ -14,32 +14,34 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
     queryFn: async () => {
       let query = supabase
         .from('aht_agent_data')
-        .select('agent_name, value, id')
+        .select('agent_name, value')
+        .order('created_at', { ascending: true });
 
       if (startDate && endDate) {
-        const formattedStartDate = format(startDate, 'yyyy-MM-dd');
-        const formattedEndDate = format(endDate, 'yyyy-MM-dd');
-        
         query = query
-          .gte('created_at', `${formattedStartDate}T00:00:00`)
-          .lte('created_at', `${formattedEndDate}T23:59:59`);
+          .gte('created_at', `${format(startDate, 'yyyy-MM-dd')}T00:00:00`)
+          .lte('created_at', `${format(endDate, 'yyyy-MM-dd')}T23:59:59`);
       }
 
       const { data, error } = await query;
       if (error) throw error;
 
-      // Aggregate data by agent_name
-      const aggregatedData = data?.reduce((acc, curr) => {
+      // Group and sum values by agent_name
+      const aggregatedData = data.reduce((acc, curr) => {
         const existingAgent = acc.find(a => a.agent_name === curr.agent_name);
         if (existingAgent) {
           existingAgent.value += curr.value;
         } else {
-          acc.push({ ...curr });
+          acc.push({
+            agent_name: curr.agent_name,
+            value: curr.value
+          });
         }
         return acc;
-      }, [] as typeof data);
+      }, [] as Array<{ agent_name: string; value: number }>);
 
-      return aggregatedData?.sort((a, b) => b.value - a.value) || [];
+      // Sort by value in descending order
+      return aggregatedData.sort((a, b) => b.value - a.value);
     },
     enabled: true
   });
@@ -64,7 +66,7 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
             </thead>
             <tbody>
               {agentData?.map((agent) => (
-                <tr key={`${agent.agent_name}-${agent.id}`}>
+                <tr key={agent.agent_name}>
                   <td className="border px-4 py-2">{agent.agent_name}</td>
                   <td className="border px-4 py-2">{agent.value.toLocaleString()}</td>
                 </tr>
