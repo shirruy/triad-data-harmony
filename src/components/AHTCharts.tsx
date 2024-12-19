@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -10,24 +11,43 @@ import {
   Pie,
   Cell,
   ResponsiveContainer,
+  Tooltip,
 } from "recharts";
 
-const waveData = [
-  { wave: "Wave 17", value: 390.34 },
-  { wave: "Wave 13", value: 541.34 },
-  { wave: "Wave 0", value: 542.39 },
-  // ... add more wave data as needed
-];
+interface WaveData {
+  wave: string;
+  value: number;
+}
 
-const teamData = [
-  { name: "Lowest AHT", value: 383.04 },
-  { name: "Mid Range", value: 576.9 },
-  { name: "Highest AHT", value: 1014.65 },
-];
-
-const COLORS = ['#00C49F', '#0088FE', '#FFBB28'];
+interface TeamData {
+  name: string;
+  value: number;
+}
 
 export const AHTCharts = () => {
+  const [waveData, setWaveData] = useState<WaveData[]>([]);
+  const [teamData, setTeamData] = useState<TeamData[]>([]);
+
+  useEffect(() => {
+    // Simulating data fetch - replace with actual API call
+    const fetchData = () => {
+      setWaveData([
+        { wave: "Wave 17", value: 390.34 },
+        { wave: "Wave 13", value: 541.34 },
+        { wave: "Wave 0", value: 542.39 },
+      ]);
+
+      setTeamData([
+        { name: "Lowest AHT", value: 383.04 },
+        { name: "Mid Range", value: 576.9 },
+        { name: "Highest AHT", value: 1014.65 },
+      ]);
+    };
+    fetchData();
+  }, []);
+
+  const COLORS = ['#00C49F', '#0088FE', '#FFBB28'];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       <Card className="lg:col-span-1">
@@ -41,6 +61,7 @@ export const AHTCharts = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
               <YAxis dataKey="wave" type="category" width={80} />
+              <Tooltip />
               <Bar dataKey="value" fill="#0088FE" />
             </BarChart>
           </ResponsiveContainer>
@@ -58,6 +79,7 @@ export const AHTCharts = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
+              <Tooltip />
               <Bar dataKey="value" fill="#0088FE" />
             </BarChart>
           </ResponsiveContainer>
@@ -85,6 +107,7 @@ export const AHTCharts = () => {
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
+              <Tooltip />
             </PieChart>
           </ResponsiveContainer>
         </CardContent>
