@@ -15,17 +15,30 @@ export const useAuthState = () => {
 
     const fetchUserData = async (userId: string) => {
       try {
-        console.log('Fetching user data for ID:', userId);
+        console.log('Starting user data fetch for ID:', userId);
+        const startTime = performance.now();
+        
         const { data, error } = await supabase
           .from('users')
           .select('*')
           .eq('id', userId)
           .maybeSingle();
 
-        if (!mounted) return;
+        const endTime = performance.now();
+        console.log(`User data fetch took ${endTime - startTime}ms`);
+
+        if (!mounted) {
+          console.log('Component unmounted during fetch, aborting state updates');
+          return;
+        }
 
         if (error) {
           console.error('Error fetching user data:', error);
+          console.log('Full error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint
+          });
           toast.error('Error loading user data');
           setLoading(false);
           return;
@@ -33,6 +46,7 @@ export const useAuthState = () => {
 
         if (!data) {
           console.log('No user data found in database for ID:', userId);
+          console.log('Database response:', data);
           toast.error('User data not found');
           setLoading(false);
           return;
@@ -44,6 +58,7 @@ export const useAuthState = () => {
       } catch (error) {
         console.error('Unexpected error fetching user data:', error);
         if (mounted) {
+          console.log('Full error details:', error);
           setLoading(false);
           toast.error('Unexpected error loading user data');
         }
@@ -52,10 +67,18 @@ export const useAuthState = () => {
 
     const initializeAuth = async () => {
       try {
-        console.log('Initializing auth state...');
+        console.log('Starting auth initialization...');
+        const startTime = performance.now();
+        
         const { data: { session } } = await supabase.auth.getSession();
         
-        if (!mounted) return;
+        const endTime = performance.now();
+        console.log(`Auth initialization took ${endTime - startTime}ms`);
+        
+        if (!mounted) {
+          console.log('Component unmounted during initialization');
+          return;
+        }
         
         setSession(session);
         setUser(session?.user ?? null);
@@ -63,11 +86,13 @@ export const useAuthState = () => {
         if (session?.user) {
           await fetchUserData(session.user.id);
         } else {
+          console.log('No active session found during initialization');
           setLoading(false);
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
         if (mounted) {
+          console.log('Full initialization error details:', error);
           setLoading(false);
           toast.error('Error initializing authentication');
         }
@@ -78,8 +103,12 @@ export const useAuthState = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event);
+      console.log("Session details:", session?.user?.id);
       
-      if (!mounted) return;
+      if (!mounted) {
+        console.log('Component unmounted during auth state change');
+        return;
+      }
       
       setSession(session);
       setUser(session?.user ?? null);
