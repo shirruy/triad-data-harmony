@@ -10,68 +10,76 @@ export const useAuthState = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set a timeout to prevent infinite loading states
-    const loadingTimeout = setTimeout(() => {
-      setLoading(false);
-    }, 5000); // 5 second maximum loading time
+    let mounted = true;
 
     const initializeAuth = async () => {
       try {
+        // Get initial session
         const { data: { session } } = await supabase.auth.getSession();
+        
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            await fetchUserData(session.user.id);
+          } else {
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    const fetchUserData = async (userId: string) => {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (error) throw error;
+        
+        if (mounted) {
+          setUserData(data);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event);
+      
+      if (mounted) {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
           await fetchUserData(session.user.id);
         } else {
+          setUserData(null);
           setLoading(false);
         }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        setLoading(false);
-      }
-    };
-
-    initializeAuth();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log("Auth state changed:", _event);
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchUserData(session.user.id);
-      } else {
-        setUserData(null);
-        setLoading(false);
       }
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
-      clearTimeout(loadingTimeout);
     };
   }, []);
-
-  const fetchUserData = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (error) throw error;
-      
-      setUserData(data);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return {
     session,

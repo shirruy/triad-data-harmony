@@ -11,8 +11,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
-// Configure QueryClient with better defaults
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -58,35 +58,43 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const timer = setTimeout(() => {
       if (loading) {
         setTimeoutError(true);
+        toast.error("Loading is taking longer than expected. Please refresh the page.");
       }
-    }, 10000);
+    }, 5000); // Reduced timeout to 5 seconds
 
     return () => clearTimeout(timer);
   }, [loading]);
 
-  if (loading) {
-    return timeoutError ? (
+  // If we're still loading initially, show the spinner
+  if (loading && !timeoutError) {
+    return <LoadingSpinner />;
+  }
+
+  // If loading timed out, show error
+  if (timeoutError) {
+    return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
-          <p className="text-destructive">Loading is taking longer than expected.</p>
+          <p className="text-destructive">Loading timed out. Please try again.</p>
           <Button onClick={() => window.location.reload()}>
             Refresh Page
           </Button>
         </div>
       </div>
-    ) : (
-      <LoadingSpinner />
     );
   }
 
+  // If no user is logged in, show auth forms
   if (!user) {
     return <AuthForms />;
   }
 
+  // If we have a user but no userData yet, show loading
   if (!userData) {
     return <LoadingSpinner />;
   }
 
+  // Everything is loaded and authenticated, show the protected content
   return <>{children}</>;
 };
 
