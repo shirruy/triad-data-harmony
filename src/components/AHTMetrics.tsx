@@ -42,24 +42,29 @@ export const AHTMetrics = () => {
   }, []);
 
   const fetchMetrics = async () => {
-    const { data, error } = await supabase
-      .from('aht_metrics')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('aht_metrics')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    if (error) {
-      console.error('Error fetching metrics:', error);
-      return;
-    }
+      if (error) {
+        console.error('Error fetching metrics:', error);
+        return;
+      }
 
-    if (data) {
-      setMetrics({
-        callsOffered: data.calls_offered,
-        answeredCalls: data.answered_calls,
-        abandonCalls: data.abandon_calls,
-      });
+      if (data) {
+        setMetrics({
+          callsOffered: data.calls_offered,
+          answeredCalls: data.answered_calls,
+          abandonCalls: data.abandon_calls,
+        });
+      }
+      // If no data is found, we'll keep using the default values set in useState
+    } catch (error) {
+      console.error('Error in fetchMetrics:', error);
     }
   };
 
