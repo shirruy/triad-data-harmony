@@ -14,33 +14,32 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
     queryFn: async () => {
       let query = supabase
         .from('aht_agent_data')
-        .select('agent_name, value')
-        .order('created_at', { ascending: true });
+        .select('agent_name, value');
 
       if (startDate && endDate) {
         query = query
-          .gte('created_at', `${format(startDate, 'yyyy-MM-dd')}T00:00:00`)
-          .lte('created_at', `${format(endDate, 'yyyy-MM-dd')}T23:59:59`);
+          .gte('created_at', format(startDate, 'yyyy-MM-dd'))
+          .lte('created_at', format(endDate, 'yyyy-MM-dd'));
       }
 
       const { data, error } = await query;
       if (error) throw error;
 
-      // Group and sum values by agent_name
-      const aggregatedData = data.reduce((acc, curr) => {
-        const existingAgent = acc.find(a => a.agent_name === curr.agent_name);
-        if (existingAgent) {
-          existingAgent.value += curr.value;
-        } else {
-          acc.push({
-            agent_name: curr.agent_name,
-            value: curr.value
-          });
-        }
-        return acc;
-      }, [] as Array<{ agent_name: string; value: number }>);
+      // Create a map to store aggregated values
+      const agentMap = new Map<string, number>();
 
-      // Sort by value in descending order
+      // Sum up all values for each agent
+      data.forEach(record => {
+        const currentValue = agentMap.get(record.agent_name) || 0;
+        agentMap.set(record.agent_name, currentValue + record.value);
+      });
+
+      // Convert map to array and sort by value
+      const aggregatedData = Array.from(agentMap.entries()).map(([agent_name, value]) => ({
+        agent_name,
+        value
+      }));
+
       return aggregatedData.sort((a, b) => b.value - a.value);
     },
     enabled: true
