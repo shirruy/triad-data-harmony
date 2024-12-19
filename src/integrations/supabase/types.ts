@@ -9,6 +9,38 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      aht_agent_data: {
+        Row: {
+          agent_name: string
+          created_at: string
+          id: string
+          team_id: string | null
+          value: number
+        }
+        Insert: {
+          agent_name: string
+          created_at?: string
+          id?: string
+          team_id?: string | null
+          value: number
+        }
+        Update: {
+          agent_name?: string
+          created_at?: string
+          id?: string
+          team_id?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aht_agent_data_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "aht_team_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       aht_metrics: {
         Row: {
           abandon_calls: number
