@@ -20,7 +20,7 @@ const chartConfig = {
   },
   barStyle: {
     fill: "hsl(var(--primary))",
-    radius: [0, 4, 4, 0]
+    radius: [0, 4, 4, 0] as [number, number, number, number] // Fix: explicitly type as tuple
   }
 };
 
