@@ -8,7 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AgentPerformance } from "@/components/performance/AgentPerformance";
 import { WavePerformance } from "@/components/performance/WavePerformance";
-import { TeamPerformance } from "@/components/team/TeamPerformance";
+import { TeamDashboard } from "@/components/team/TeamDashboard";
 import { Settings } from "@/components/settings/Settings";
 import { Profile } from "@/components/profile/Profile";
 
@@ -39,7 +39,7 @@ function App() {
               } />
               <Route path="/team-performance" element={
                 <DashboardLayout>
-                  <TeamPerformance />
+                  <TeamDashboard />
                 </DashboardLayout>
               } />
               <Route path="/settings" element={
