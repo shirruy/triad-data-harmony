@@ -21,8 +21,10 @@ export const AHTCharts = () => {
   const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {
+    // Initial fetch
     fetchData();
 
+    // Set up real-time subscription for wave data
     const waveChannel = supabase
       .channel('wave-changes')
       .on(
@@ -38,6 +40,7 @@ export const AHTCharts = () => {
       )
       .subscribe();
 
+    // Set up real-time subscription for team data
     const teamChannel = supabase
       .channel('team-changes')
       .on(
@@ -103,15 +106,17 @@ export const AHTCharts = () => {
     setFilterType(value);
   };
 
-  const filteredWaveData = waveData.filter(item => 
-    (filterType === "all" || filterType === "wave") &&
-    item.wave.toLowerCase().includes(searchTerm)
-  );
+  const filteredWaveData = waveData.filter(item => {
+    if (filterType !== "all" && filterType !== "wave") return false;
+    if (!searchTerm) return true;
+    return item.wave.toLowerCase().includes(searchTerm);
+  });
 
-  const filteredTeamData = teamData.filter(item => 
-    (filterType === "all" || filterType === "team") &&
-    item.name.toLowerCase().includes(searchTerm)
-  );
+  const filteredTeamData = teamData.filter(item => {
+    if (filterType !== "all" && filterType !== "team") return false;
+    if (!searchTerm) return true;
+    return item.name.toLowerCase().includes(searchTerm);
+  });
 
   return (
     <div className="space-y-4">
@@ -121,19 +126,25 @@ export const AHTCharts = () => {
       />
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <AHTBarChart 
-          data={filteredWaveData}
-          title="AHT Per Wave"
-          layout="vertical"
-        />
-        <AHTBarChart 
-          data={filteredTeamData}
-          title="AHT per Team Lead"
-        />
-        <AHTPieChart 
-          data={filteredTeamData}
-          title="AHT per LOB"
-        />
+        {(filterType === "all" || filterType === "wave") && (
+          <AHTBarChart 
+            data={filteredWaveData}
+            title="AHT Per Wave"
+            layout="vertical"
+          />
+        )}
+        {(filterType === "all" || filterType === "team") && (
+          <>
+            <AHTBarChart 
+              data={filteredTeamData}
+              title="AHT per Team Lead"
+            />
+            <AHTPieChart 
+              data={filteredTeamData}
+              title="AHT per LOB"
+            />
+          </>
+        )}
       </div>
     </div>
   );
