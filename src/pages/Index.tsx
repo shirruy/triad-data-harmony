@@ -11,9 +11,7 @@ const Index = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
-          <AHTMetrics />
-        </div>
+        <AHTMetrics />
         
         <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
           <AHTAgentView />
