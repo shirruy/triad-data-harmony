@@ -3,6 +3,7 @@ import { LogOut, RefreshCw, BarChart2, Shield, ChartBar, User } from "lucide-rea
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface DashboardHeaderProps {
   onRefresh?: () => void;
@@ -11,6 +12,16 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader = ({ onRefresh, canEdit }: DashboardHeaderProps) => {
   const { userData, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Signed out successfully");
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast.error("Error signing out. Please try again.");
+    }
+  };
 
   const getRoleIcon = () => {
     switch (userData?.role) {
@@ -95,7 +106,7 @@ export const DashboardHeader = ({ onRefresh, canEdit }: DashboardHeaderProps) =>
           )}
           <Button 
             variant="outline" 
-            onClick={signOut} 
+            onClick={handleSignOut} 
             className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
           >
             <LogOut className="h-4 w-4" />
