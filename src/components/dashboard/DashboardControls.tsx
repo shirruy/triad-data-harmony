@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { AHTDateRangeSelector } from "@/components/aht/AHTDateRangeSelector";
 import { AHTExportButton } from "@/components/aht/AHTExportButton";
-import { AHTUploadButton } from "@/components/aht/AHTUploadButton";
+import { AHTDataUpload } from "@/components/AHTDataUpload";
 import { AHTSearchFilter } from "@/components/aht/AHTSearchFilter";
 
 interface DashboardControlsProps {
@@ -37,7 +37,7 @@ export const DashboardControls = ({
           <AHTDateRangeSelector onDateRangeChange={onDateRangeChange} />
           <div className="flex gap-4">
             {canUploadData && <AHTExportButton />}
-            {canUploadData && <AHTUploadButton />}
+            {canUploadData && <AHTDataUpload />}
           </div>
         </div>
       </motion.div>

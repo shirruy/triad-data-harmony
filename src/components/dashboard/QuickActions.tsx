@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { AHTUploadButton } from "@/components/aht/AHTUploadButton";
+import { AHTDataUpload } from "@/components/AHTDataUpload";
 import { useToast } from "@/hooks/use-toast";
 
 interface QuickActionsProps {
@@ -38,7 +38,7 @@ export const QuickActions = ({ canUploadData }: QuickActionsProps) => {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <AHTUploadButton />
+              <AHTDataUpload />
             </motion.div>
           )}
           <motion.button 
