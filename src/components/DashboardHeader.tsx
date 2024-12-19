@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { LogOut, RefreshCw, BarChart2 } from "lucide-react";
+import { LogOut, RefreshCw, BarChart2, Shield, ChartBar, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 
 interface DashboardHeaderProps {
   onRefresh?: () => void;
@@ -10,6 +11,28 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader = ({ onRefresh, canEdit }: DashboardHeaderProps) => {
   const { userData, signOut } = useAuth();
+
+  const getRoleIcon = () => {
+    switch (userData?.role) {
+      case 'administrator':
+        return <Shield className="h-4 w-4" />;
+      case 'analyst':
+        return <ChartBar className="h-4 w-4" />;
+      default:
+        return <User className="h-4 w-4" />;
+    }
+  };
+
+  const getRoleBadgeColor = () => {
+    switch (userData?.role) {
+      case 'administrator':
+        return 'bg-red-100 text-red-800 hover:bg-red-100/80';
+      case 'analyst':
+        return 'bg-blue-100 text-blue-800 hover:bg-blue-100/80';
+      default:
+        return 'bg-green-100 text-green-800 hover:bg-green-100/80';
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
@@ -33,14 +56,29 @@ export const DashboardHeader = ({ onRefresh, canEdit }: DashboardHeaderProps) =>
             >
               Workforce Analytics
             </motion.h1>
-            <motion.p 
-              className="text-sm text-slate-500"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              {userData?.role.charAt(0).toUpperCase() + userData?.role.slice(1)} Dashboard
-            </motion.p>
+            <div className="flex items-center gap-2">
+              <motion.p 
+                className="text-sm text-slate-500"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                {userData?.role.charAt(0).toUpperCase() + userData?.role.slice(1)} Dashboard
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Badge 
+                  variant="secondary"
+                  className={`flex items-center gap-1 ${getRoleBadgeColor()}`}
+                >
+                  {getRoleIcon()}
+                  {userData?.role.charAt(0).toUpperCase() + userData?.role.slice(1)}
+                </Badge>
+              </motion.div>
+            </div>
           </div>
         </div>
         <motion.div 
