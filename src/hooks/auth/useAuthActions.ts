@@ -1,28 +1,34 @@
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { UserRole } from '@/lib/auth/types';
-import { AUTH_ERRORS } from '@/lib/auth/constants';
-import { validateRegistrationKey } from '@/lib/auth/validators';
 
 export const useAuthActions = () => {
   const signIn = async (email: string, password: string) => {
     try {
       console.log("Attempting sign in with email:", email);
       
+      // First, check if the user exists in auth system
       const { data: userExists, error: userCheckError } = await supabase
         .from('users')
         .select('email, role')
         .eq('email', email)
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
 
-      if (userCheckError || !userExists) {
+      if (userCheckError) {
+        console.error("Error checking user:", userCheckError);
+        toast.error("An error occurred while checking user credentials");
+        return;
+      }
+
+      if (!userExists) {
         console.log("User not found:", email);
-        toast.error(AUTH_ERRORS.USER_NOT_FOUND);
+        toast.error("No account found with this email. Please register first.");
         return;
       }
 
       console.log("User found, attempting login...");
 
+      // Attempt to sign in with credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -31,12 +37,13 @@ export const useAuthActions = () => {
       if (error) {
         console.error("Sign in error:", error);
         
-        if (error.message.includes(AUTH_ERRORS.INVALID_CREDENTIALS)) {
+        // Handle specific error cases
+        if (error.message.includes("Invalid login credentials")) {
           toast.error("Incorrect password. Please try again.");
-        } else if (error.message.includes(AUTH_ERRORS.EMAIL_NOT_CONFIRMED)) {
+        } else if (error.message.includes("Email not confirmed")) {
           toast.error("Please confirm your email address before signing in.");
         } else {
-          toast.error(AUTH_ERRORS.GENERIC_ERROR);
+          toast.error("An error occurred during login. Please try again.");
         }
         return;
       }
@@ -47,7 +54,7 @@ export const useAuthActions = () => {
       }
     } catch (error: any) {
       console.error("Unexpected error during sign in:", error);
-      toast.error(AUTH_ERRORS.GENERIC_ERROR);
+      toast.error("An unexpected error occurred. Please try again later.");
     }
   };
 
@@ -55,17 +62,25 @@ export const useAuthActions = () => {
     try {
       console.log("Starting registration process for email:", email);
       
-      const { data: existingUser } = await supabase
+      // Check if user already exists
+      const { data: existingUser, error: checkError } = await supabase
         .from('users')
         .select('email')
         .eq('email', email)
-        .single();
+        .maybeSingle(); // Changed from .single() to .maybeSingle()
+
+      if (checkError) {
+        console.error("Error checking existing user:", checkError);
+        toast.error("An error occurred while checking user existence");
+        return;
+      }
 
       if (existingUser) {
         toast.error("An account with this email already exists. Please sign in instead.");
         return;
       }
 
+      // Attempt to sign up the user
       const signUpResponse = await supabase.auth.signUp({
         email,
         password,
@@ -89,6 +104,7 @@ export const useAuthActions = () => {
 
       console.log("User created successfully, creating profile...");
 
+      // Create the user profile
       const { error: profileError } = await supabase.rpc('create_new_user', {
         user_id: user.id,
         user_email: email,
