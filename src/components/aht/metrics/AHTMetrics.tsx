@@ -5,8 +5,13 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-export const AHTMetrics = () => {
-  const { metrics } = useAHTMetrics();
+interface AHTMetricsProps {
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export const AHTMetrics = ({ startDate, endDate }: AHTMetricsProps) => {
+  const { metrics } = useAHTMetrics(startDate, endDate);
   const navigate = useNavigate();
 
   const container = {
