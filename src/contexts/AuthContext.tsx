@@ -17,21 +17,16 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { session, user, userData, loading } = useAuthState();
-  const { signIn, signOut, register } = useAuthActions();
+  const authState = useAuthState();
+  const authActions = useAuthActions();
+
+  const value = {
+    ...authState,
+    ...authActions,
+  };
 
   return (
-    <AuthContext.Provider
-      value={{
-        session,
-        user,
-        userData,
-        signIn,
-        signOut,
-        register,
-        loading,
-      }}
-    >
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

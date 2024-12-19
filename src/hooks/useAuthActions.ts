@@ -1,10 +1,8 @@
 import { supabase } from '@/lib/supabase';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { UserRole } from '@/lib/supabase';
 
 export const useAuthActions = () => {
-  const { toast } = useToast();
-
   const signIn = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
@@ -14,29 +12,19 @@ export const useAuthActions = () => {
 
       if (error) {
         console.error("Sign in error:", error);
-        toast({
-          variant: "destructive",
-          title: "Login Failed",
-          description: error.message === "Invalid login credentials" 
-            ? "Invalid email or password. Please check your credentials and try again."
-            : "An error occurred during login. Please try again.",
-        });
+        toast(error.message === "Invalid login credentials" 
+          ? "Invalid email or password. Please check your credentials and try again."
+          : "An error occurred during login. Please try again."
+        );
         return;
       }
 
       if (data?.user) {
-        toast({
-          title: "Welcome back!",
-          description: "You have successfully signed in.",
-        });
+        toast("Welcome back!");
       }
     } catch (error: any) {
       console.error("Unexpected error during sign in:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "An unexpected error occurred. Please try again.",
-      });
+      toast("An unexpected error occurred. Please try again.");
     }
   };
 
@@ -64,17 +52,10 @@ export const useAuthActions = () => {
         throw userError;
       }
 
-      toast({
-        title: "Success",
-        description: "Registration successful. Please check your email for verification.",
-      });
+      toast("Registration successful. Please check your email for verification.");
     } catch (error: any) {
       console.error("Registration error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
+      toast(error.message);
       throw error;
     }
   };
@@ -83,17 +64,10 @@ export const useAuthActions = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      toast({
-        title: "Success",
-        description: "Successfully signed out",
-      });
+      toast("Successfully signed out");
     } catch (error: any) {
       console.error("Sign out error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
+      toast(error.message);
       throw error;
     }
   };
