@@ -2,9 +2,12 @@ import { PhoneCall, PhoneForwarded, PhoneOff } from "lucide-react";
 import { AHTMetricCard } from "./AHTMetricCard";
 import { useAHTMetrics } from "@/hooks/aht/useAHTMetrics";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export const AHTMetrics = () => {
   const { metrics } = useAHTMetrics();
+  const navigate = useNavigate();
 
   const container = {
     hidden: { opacity: 0 },
@@ -13,6 +16,23 @@ export const AHTMetrics = () => {
       transition: {
         staggerChildren: 0.1
       }
+    }
+  };
+
+  const handleMetricClick = (type: 'total' | 'answered' | 'abandoned') => {
+    switch(type) {
+      case 'total':
+        navigate('/team-performance');
+        toast.info("Viewing total calls breakdown by team");
+        break;
+      case 'answered':
+        navigate('/agent-performance');
+        toast.success("Viewing answered calls by agent");
+        break;
+      case 'abandoned':
+        navigate('/wave-performance');
+        toast.warning("Viewing abandoned calls by wave");
+        break;
     }
   };
 
@@ -29,6 +49,7 @@ export const AHTMetrics = () => {
         icon={PhoneCall}
         color="blue"
         subtitle="Offered calls today"
+        onClick={() => handleMetricClick('total')}
       />
       <AHTMetricCard
         title="Answered"
@@ -36,6 +57,7 @@ export const AHTMetrics = () => {
         icon={PhoneForwarded}
         color="green"
         subtitle="Successfully handled"
+        onClick={() => handleMetricClick('answered')}
       />
       <AHTMetricCard
         title="Abandoned"
@@ -43,6 +65,7 @@ export const AHTMetrics = () => {
         icon={PhoneOff}
         color="red"
         subtitle="Missed opportunities"
+        onClick={() => handleMetricClick('abandoned')}
       />
     </motion.div>
   );

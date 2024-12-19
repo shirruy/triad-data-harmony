@@ -8,9 +8,17 @@ interface MetricsCardProps {
   icon: LucideIcon;
   color: "blue" | "green" | "red";
   subtitle?: string;
+  onClick?: () => void;
 }
 
-export const AHTMetricsCard = ({ title, value, icon: Icon, color, subtitle }: MetricsCardProps) => {
+export const AHTMetricsCard = ({ 
+  title, 
+  value, 
+  icon: Icon, 
+  color, 
+  subtitle,
+  onClick 
+}: MetricsCardProps) => {
   const colorClasses = {
     blue: "from-blue-600/20 via-purple-600/20 to-purple-800/20 text-blue-500",
     green: "from-emerald-600/20 via-purple-600/20 to-purple-800/20 text-emerald-500",
@@ -24,8 +32,9 @@ export const AHTMetricsCard = ({ title, value, icon: Icon, color, subtitle }: Me
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.02 }}
       className="h-full"
+      onClick={onClick}
     >
-      <Card className={`bg-gradient-to-br ${colorClasses[color]} border-0 shadow-xl transition-all duration-300 h-full backdrop-blur-sm`}>
+      <Card className={`bg-gradient-to-br ${colorClasses[color]} border-0 shadow-xl transition-all duration-300 h-full backdrop-blur-sm cursor-pointer`}>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {title}
