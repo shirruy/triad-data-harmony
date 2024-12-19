@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AHTInsight } from "@/components/AHTInsight";
-import { AHTMetrics } from "@/components/aht/AHTMetrics";
-import { AHTCharts } from "@/components/AHTCharts";
-import { AHTDataUploadButton } from "@/components/aht/AHTDataUploadButton";
+import { AHTMetrics } from "@/components/aht/metrics/AHTMetrics";
+import { AHTCharts } from "@/components/aht/AHTCharts";
+import { AHTUploadButton } from "@/components/aht/AHTUploadButton";
 import { useAuth } from "@/contexts/AuthContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
