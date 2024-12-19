@@ -3,29 +3,49 @@ import { supabase } from "@/integrations/supabase/client";
 import { TeamMemberCard } from "./TeamMemberCard";
 import { PerformanceAlert } from "../alerts/PerformanceAlert";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
 
-export const TeamDashboard = () => {
+interface TeamDashboardProps {
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export const TeamDashboard = ({ startDate, endDate }: TeamDashboardProps) => {
   const { data: teamMembers } = useQuery({
-    queryKey: ['team-members'],
+    queryKey: ['team-members', startDate, endDate],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('team_members')
         .select('*')
         .order('performance_score', { ascending: false });
+
+      if (startDate && endDate) {
+        query = query
+          .gte('created_at', format(startDate, 'yyyy-MM-dd'))
+          .lte('created_at', format(endDate, 'yyyy-MM-dd'));
+      }
       
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     }
   });
 
   const { data: alerts } = useQuery({
-    queryKey: ['performance-alerts'],
+    queryKey: ['performance-alerts', startDate, endDate],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('performance_alerts')
         .select('*')
         .eq('is_active', true);
+
+      if (startDate && endDate) {
+        query = query
+          .gte('created_at', format(startDate, 'yyyy-MM-dd'))
+          .lte('created_at', format(endDate, 'yyyy-MM-dd'));
+      }
       
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     }

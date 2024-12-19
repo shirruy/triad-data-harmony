@@ -1,67 +1,50 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { motion } from "framer-motion";
+import { format } from "date-fns";
 
-export const HistoricalTrend = () => {
-  const { data: trendData } = useQuery({
-    queryKey: ['historical-trend'],
+interface HistoricalTrendProps {
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export const HistoricalTrend = ({ startDate, endDate }: HistoricalTrendProps) => {
+  const { data: trendData, isLoading } = useQuery({
+    queryKey: ['historical-trend', startDate, endDate],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('aht_metrics')
+      let query = supabase
+        .from('historical_trend_data')
         .select('*')
-        .order('created_at', { ascending: true });
+        .order('date', { ascending: true });
 
+      if (startDate && endDate) {
+        query = query
+          .gte('date', format(startDate, 'yyyy-MM-dd'))
+          .lte('date', format(endDate, 'yyyy-MM-dd'));
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
-
-      return data.map(item => ({
-        date: new Date(item.created_at).toLocaleDateString(),
-        calls: item.calls_offered,
-        answered: item.answered_calls,
-        abandoned: item.abandon_calls
-      }));
+      return data;
     }
   });
 
+  if (isLoading) {
+    return <div className="text-center p-4">Loading...</div>;
+  }
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-lg font-semibold">Historical Trend</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="h-[300px]"
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={trendData}>
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Line 
-                type="monotone" 
-                dataKey="calls" 
-                stroke="#8884d8" 
-                name="Total Calls" 
-              />
-              <Line 
-                type="monotone" 
-                dataKey="answered" 
-                stroke="#82ca9d" 
-                name="Answered" 
-              />
-              <Line 
-                type="monotone" 
-                dataKey="abandoned" 
-                stroke="#ff7300" 
-                name="Abandoned" 
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </motion.div>
-      </CardContent>
+    <Card>
+      <h2 className="text-lg font-semibold">Historical Trend</h2>
+      <div className="mt-4">
+        {/* Render your trend data here */}
+        {trendData?.map((item) => (
+          <div key={item.id} className="flex justify-between">
+            <span>{item.date}</span>
+            <span>{item.value}</span>
+          </div>
+        ))}
+      </div>
     </Card>
   );
 };
