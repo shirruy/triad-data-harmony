@@ -8,23 +8,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
 
 interface DateRangeSelectorProps {
   onDateRangeChange: (startDate: Date | undefined, endDate: Date | undefined) => void;
 }
 
 export const AHTDateRangeSelector = ({ onDateRangeChange }: DateRangeSelectorProps) => {
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
-  const handleDateSelect = (date: Date | undefined) => {
-    if (!startDate || (startDate && endDate)) {
-      setStartDate(date);
-      setEndDate(undefined);
-    } else {
-      setEndDate(date);
-      onDateRangeChange(startDate, date);
-    }
+  const handleSelect = (range: DateRange | undefined) => {
+    setDateRange(range);
+    onDateRangeChange(range?.from, range?.to);
   };
 
   return (
@@ -33,11 +28,11 @@ export const AHTDateRangeSelector = ({ onDateRangeChange }: DateRangeSelectorPro
         <PopoverTrigger asChild>
           <Button variant="outline" className="flex items-center gap-2">
             <CalendarIcon className="h-4 w-4" />
-            {startDate ? (
-              endDate ? (
-                `${format(startDate, 'MMM d, yyyy')} - ${format(endDate, 'MMM d, yyyy')}`
+            {dateRange?.from ? (
+              dateRange.to ? (
+                `${format(dateRange.from, 'MMM d, yyyy')} - ${format(dateRange.to, 'MMM d, yyyy')}`
               ) : (
-                `From ${format(startDate, 'MMM d, yyyy')}`
+                `From ${format(dateRange.from, 'MMM d, yyyy')}`
               )
             ) : (
               'Select Date Range'
@@ -46,10 +41,12 @@ export const AHTDateRangeSelector = ({ onDateRangeChange }: DateRangeSelectorPro
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
-            mode="single"
-            selected={endDate || startDate}
-            onSelect={handleDateSelect}
             initialFocus
+            mode="range"
+            defaultMonth={dateRange?.from}
+            selected={dateRange}
+            onSelect={handleSelect}
+            numberOfMonths={2}
           />
         </PopoverContent>
       </Popover>

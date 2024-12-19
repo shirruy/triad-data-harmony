@@ -11,26 +11,43 @@ import {
 } from "@/components/ui/table";
 import { motion } from "framer-motion";
 import { Users, User } from "lucide-react";
+import { AHTDateRangeSelector } from "./AHTDateRangeSelector";
+import { useState } from "react";
+import { toast } from "sonner";
+import { format } from "date-fns";
 
 interface TeamData {
   name: string;
   value: number;
+  created_at: string;
 }
 
 interface AgentData {
   agent_name: string;
   value: number;
   team_id: string | null;
+  created_at: string;
 }
 
 export const TotalCallsView = () => {
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
+
   const { data: teamData, isLoading: isTeamLoading } = useQuery({
-    queryKey: ['team-total-calls'],
+    queryKey: ['team-total-calls', startDate, endDate],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('aht_team_data')
         .select('*')
         .order('value', { ascending: false });
+
+      if (startDate && endDate) {
+        query = query
+          .gte('created_at', format(startDate, 'yyyy-MM-dd'))
+          .lte('created_at', format(endDate, 'yyyy-MM-dd'));
+      }
+
+      const { data, error } = await query;
       
       if (error) throw error;
       return data as TeamData[];
@@ -38,17 +55,33 @@ export const TotalCallsView = () => {
   });
 
   const { data: agentData, isLoading: isAgentLoading } = useQuery({
-    queryKey: ['agent-total-calls'],
+    queryKey: ['agent-total-calls', startDate, endDate],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from('aht_agent_data')
         .select('*')
         .order('value', { ascending: false });
+
+      if (startDate && endDate) {
+        query = query
+          .gte('created_at', format(startDate, 'yyyy-MM-dd'))
+          .lte('created_at', format(endDate, 'yyyy-MM-dd'));
+      }
+
+      const { data, error } = await query;
       
       if (error) throw error;
       return data as AgentData[];
     }
   });
+
+  const handleDateRangeChange = (start: Date | undefined, end: Date | undefined) => {
+    setStartDate(start);
+    setEndDate(end);
+    if (start && end) {
+      toast.success(`Data filtered from ${format(start, 'MMM d, yyyy')} to ${format(end, 'MMM d, yyyy')}`);
+    }
+  };
 
   if (isTeamLoading || isAgentLoading) {
     return <div className="text-center p-4">Loading...</div>;
@@ -56,6 +89,10 @@ export const TotalCallsView = () => {
 
   return (
     <div className="space-y-8">
+      <div className="mb-6">
+        <AHTDateRangeSelector onDateRangeChange={handleDateRangeChange} />
+      </div>
+
       {/* Team Performance Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
