@@ -17,7 +17,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { Breadcrumbs } from "@/components/dashboard/Breadcrumbs";
 
-export const DashboardLayout = () => {
+interface DashboardLayoutProps {
+  children: React.ReactNode;
+}
+
+export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { userData } = useAuth();
   const { toast } = useToast();
   const canUploadData = userData?.role === 'administrator' || userData?.role === 'analyst';
@@ -156,6 +160,8 @@ export const DashboardLayout = () => {
             <motion.div variants={itemVariants}>
               <AHTCharts />
             </motion.div>
+
+            {children}
           </motion.div>
         </div>
         <Toaster position="top-right" />
