@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { UserData, UserRole } from '@/lib/supabase';
 import { useAuthState } from '@/hooks/useAuthState';
@@ -20,10 +20,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const authState = useAuthState();
   const authActions = useAuthActions();
 
-  const value = {
+  const value = useMemo(() => ({
     ...authState,
     ...authActions,
-  };
+  }), [authState, authActions]);
 
   return (
     <AuthContext.Provider value={value}>
