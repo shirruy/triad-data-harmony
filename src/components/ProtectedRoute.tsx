@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { AuthForms } from "@/components/AuthForms";
 import { toast } from "sonner";
+import { LogOut } from "lucide-react";
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, userData } = useAuth();
+  const { user, loading, userData, signOut } = useAuth();
   const [timeoutError, setTimeoutError] = useState(false);
 
   useEffect(() => {
@@ -15,8 +16,8 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     if (loading) {
       timer = setTimeout(() => {
         setTimeoutError(true);
-        toast.error("Loading is taking longer than expected. Please refresh the page.");
-      }, 2000); // Reduced to 2 seconds for faster feedback
+        toast.error("Loading is taking longer than expected. Please try signing out and back in.");
+      }, 2000);
     }
 
     return () => {
@@ -24,12 +25,21 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     };
   }, [loading]);
 
-  // Reset timeout error when loading changes
   useEffect(() => {
     if (!loading) {
       setTimeoutError(false);
     }
   }, [loading]);
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Successfully signed out");
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast.error("Error signing out. Please try again.");
+    }
+  };
 
   if (loading && !timeoutError) {
     return (
@@ -43,30 +53,47 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
-          <p className="text-destructive">Loading timed out. Please try again.</p>
-          <Button onClick={() => window.location.reload()}>
-            Refresh Page
-          </Button>
+          <p className="text-destructive">Loading timed out. Please try signing out and back in.</p>
+          <div className="flex gap-2 justify-center">
+            <Button onClick={() => window.location.reload()}>
+              Refresh Page
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleSignOut}
+              className="flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
     );
   }
 
-  // If there's no user, show auth forms
   if (!user) {
     return <AuthForms />;
   }
 
-  // If there's no user data but we have a user, something went wrong with the database
   if (!userData) {
-    toast.error("Unable to load user data. Please sign out and try again.");
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <p className="text-destructive">Error loading user data</p>
-          <Button onClick={() => window.location.reload()}>
-            Try Again
-          </Button>
+          <div className="flex gap-2 justify-center">
+            <Button onClick={() => window.location.reload()}>
+              Try Again
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={handleSignOut}
+              className="flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
     );
