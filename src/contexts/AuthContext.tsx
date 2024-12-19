@@ -89,21 +89,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log("Auth user created:", authData.user);
 
-      // Then insert the user data
-      const { error: userError } = await supabase
-        .from('users')
-        .insert([
-          {
-            id: authData.user.id,
-            email: authData.user.email,
-            role: role,
-          }
-        ]);
+      // Insert the user data using RPC to bypass RLS
+      const { error: userError } = await supabase.rpc('create_new_user', {
+        user_id: authData.user.id,
+        user_email: email,
+        user_role: role
+      });
 
       if (userError) {
         console.error("Error inserting user data:", userError);
-        // Note: We can't delete the auth user from the client side, 
-        // but Supabase will clean up unverified users automatically
         throw userError;
       }
 
