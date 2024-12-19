@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { UserData } from '@/lib/supabase';
@@ -11,47 +11,46 @@ export const useAuthState = () => {
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
 
-  const fetchUserData = useCallback(async (userId: string) => {
-    try {
-      console.log('Starting user data fetch for ID:', userId);
-      
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (!mountedRef.current) return;
-
-      if (error) {
-        console.error('Error fetching user data:', error);
-        toast.error('Error loading user data');
-        setLoading(false);
-        return;
-      }
-
-      if (!data) {
-        console.log('No user data found for ID:', userId);
-        toast.error('User data not found');
-        setLoading(false);
-        return;
-      }
-
-      console.log('User data fetched successfully');
-      setUserData(data);
-      setLoading(false);
-    } catch (error) {
-      console.error('Unexpected error fetching user data:', error);
-      if (mountedRef.current) {
-        toast.error('Unexpected error loading user data');
-        setLoading(false);
-      }
-    }
-  }, []);
-
   useEffect(() => {
     console.log('Auth state hook initialized');
-    mountedRef.current = true;
+    
+    const fetchUserData = async (userId: string) => {
+      try {
+        console.log('Starting user data fetch for ID:', userId);
+        
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (!mountedRef.current) return;
+
+        if (error) {
+          console.error('Error fetching user data:', error);
+          toast.error('Error loading user data');
+          setLoading(false);
+          return;
+        }
+
+        if (!data) {
+          console.log('No user data found for ID:', userId);
+          toast.error('User data not found');
+          setLoading(false);
+          return;
+        }
+
+        console.log('User data fetched successfully');
+        setUserData(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Unexpected error fetching user data:', error);
+        if (mountedRef.current) {
+          toast.error('Unexpected error loading user data');
+          setLoading(false);
+        }
+      }
+    };
 
     const initializeAuth = async () => {
       try {
@@ -77,9 +76,7 @@ export const useAuthState = () => {
       }
     };
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log('Auth state changed:', event);
       
       if (!mountedRef.current) return;
@@ -102,7 +99,7 @@ export const useAuthState = () => {
       mountedRef.current = false;
       subscription.unsubscribe();
     };
-  }, [fetchUserData]);
+  }, []);
 
   return {
     session,

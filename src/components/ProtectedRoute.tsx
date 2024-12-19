@@ -1,7 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { AuthForms } from "@/components/AuthForms";
-import { toast } from "sonner";
 import { ErrorDisplay } from "@/components/ErrorDisplay";
 import { useLoadingTimeout } from "@/hooks/useLoadingTimeout";
 
@@ -12,11 +11,8 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      window.location.reload();
-      toast.success("Successfully signed out");
     } catch (error) {
       console.error("Sign out error:", error);
-      toast.error("Error signing out. Please try again.");
     }
   };
 

@@ -12,19 +12,18 @@ export const useAuthActions = () => {
 
       if (error) {
         console.error("Sign in error:", error);
-        toast(error.message === "Invalid login credentials" 
-          ? "Invalid email or password. Please check your credentials and try again."
-          : "An error occurred during login. Please try again."
-        );
+        toast.error(error.message === "Invalid login credentials" 
+          ? "Invalid email or password"
+          : "An error occurred during login");
         return;
       }
 
       if (data?.user) {
-        toast("Welcome back!");
+        toast.success("Welcome back!");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Unexpected error during sign in:", error);
-      toast("An unexpected error occurred. Please try again.");
+      toast.error("An unexpected error occurred");
     }
   };
 
@@ -52,10 +51,10 @@ export const useAuthActions = () => {
         throw userError;
       }
 
-      toast("Registration successful. Please check your email for verification.");
+      toast.success("Registration successful! Please check your email.");
     } catch (error: any) {
       console.error("Registration error:", error);
-      toast(error.message);
+      toast.error(error.message);
       throw error;
     }
   };
@@ -64,10 +63,10 @@ export const useAuthActions = () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      toast("Successfully signed out");
+      toast.success("Successfully signed out");
     } catch (error: any) {
       console.error("Sign out error:", error);
-      toast(error.message);
+      toast.error(error.message);
       throw error;
     }
   };
