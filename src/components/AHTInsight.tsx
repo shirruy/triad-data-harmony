@@ -1,6 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface InsightData {
   highestAHT: {
@@ -20,15 +21,54 @@ export const AHTInsight = () => {
   });
 
   useEffect(() => {
-    // Simulating data fetch - replace with actual API call
-    const fetchInsightData = () => {
-      setInsightData({
-        highestAHT: { team: "Nudo, Stephany May", score: 1014.65 },
-        lowestAHT: { team: "Faderog, Angelica", score: 383.04 },
-      });
-    };
+    // Initial fetch
     fetchInsightData();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'aht_team_data'
+        },
+        () => {
+          fetchInsightData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
+
+  const fetchInsightData = async () => {
+    const { data, error } = await supabase
+      .from('aht_team_data')
+      .select('name, value')
+      .order('value', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching insight data:', error);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      setInsightData({
+        highestAHT: {
+          team: data[data.length - 1].name,
+          score: data[data.length - 1].value,
+        },
+        lowestAHT: {
+          team: data[0].name,
+          score: data[0].value,
+        },
+      });
+    }
+  };
 
   return (
     <Card className="bg-white shadow-sm">

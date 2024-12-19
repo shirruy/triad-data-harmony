@@ -9,6 +9,72 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      aht_metrics: {
+        Row: {
+          abandon_calls: number
+          answered_calls: number
+          calls_offered: number
+          created_at: string
+          id: string
+        }
+        Insert: {
+          abandon_calls?: number
+          answered_calls?: number
+          calls_offered?: number
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          abandon_calls?: number
+          answered_calls?: number
+          calls_offered?: number
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      aht_team_data: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          value?: number
+        }
+        Relationships: []
+      }
+      aht_wave_data: {
+        Row: {
+          created_at: string
+          id: string
+          value: number
+          wave: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          value: number
+          wave: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          value?: number
+          wave?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string

@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MetricsData {
   callsOffered: number;
@@ -16,16 +17,51 @@ export const AHTMetrics = () => {
   });
 
   useEffect(() => {
-    // Simulating data fetch - replace with actual API call
-    const fetchMetrics = () => {
-      setMetrics({
-        callsOffered: 95715,
-        answeredCalls: 92739,
-        abandonCalls: 2976,
-      });
-    };
+    // Initial fetch
     fetchMetrics();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'aht_metrics'
+        },
+        () => {
+          fetchMetrics();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
+
+  const fetchMetrics = async () => {
+    const { data, error } = await supabase
+      .from('aht_metrics')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) {
+      console.error('Error fetching metrics:', error);
+      return;
+    }
+
+    if (data) {
+      setMetrics({
+        callsOffered: data.calls_offered,
+        answeredCalls: data.answered_calls,
+        abandonCalls: data.abandon_calls,
+      });
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

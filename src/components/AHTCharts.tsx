@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   BarChart,
   Bar,
@@ -29,22 +30,82 @@ export const AHTCharts = () => {
   const [teamData, setTeamData] = useState<TeamData[]>([]);
 
   useEffect(() => {
-    // Simulating data fetch - replace with actual API call
-    const fetchData = () => {
-      setWaveData([
-        { wave: "Wave 17", value: 390.34 },
-        { wave: "Wave 13", value: 541.34 },
-        { wave: "Wave 0", value: 542.39 },
-      ]);
-
-      setTeamData([
-        { name: "Lowest AHT", value: 383.04 },
-        { name: "Mid Range", value: 576.9 },
-        { name: "Highest AHT", value: 1014.65 },
-      ]);
-    };
+    // Initial fetch
     fetchData();
+
+    // Set up real-time subscription for wave data
+    const waveChannel = supabase
+      .channel('wave-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'aht_wave_data'
+        },
+        () => {
+          fetchWaveData();
+        }
+      )
+      .subscribe();
+
+    // Set up real-time subscription for team data
+    const teamChannel = supabase
+      .channel('team-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'aht_team_data'
+        },
+        () => {
+          fetchTeamData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(waveChannel);
+      supabase.removeChannel(teamChannel);
+    };
   }, []);
+
+  const fetchData = async () => {
+    await Promise.all([fetchWaveData(), fetchTeamData()]);
+  };
+
+  const fetchWaveData = async () => {
+    const { data, error } = await supabase
+      .from('aht_wave_data')
+      .select('wave, value')
+      .order('value', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching wave data:', error);
+      return;
+    }
+
+    if (data) {
+      setWaveData(data);
+    }
+  };
+
+  const fetchTeamData = async () => {
+    const { data, error } = await supabase
+      .from('aht_team_data')
+      .select('name, value')
+      .order('value', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching team data:', error);
+      return;
+    }
+
+    if (data) {
+      setTeamData(data);
+    }
+  };
 
   const COLORS = ['#00C49F', '#0088FE', '#FFBB28'];
 
