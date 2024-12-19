@@ -4,12 +4,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { motion } from "framer-motion";
 import { User } from "lucide-react";
+import { AHTCustomTooltip } from "./charts/AHTCustomTooltip";
 
 interface AgentData {
   agent_name: string;
   value: number;
   team_id: string | null;
 }
+
+const chartConfig = {
+  gridStroke: "rgba(255, 255, 255, 0.1)",
+  axisStyle: {
+    fill: "hsl(var(--foreground))",
+    stroke: "hsl(var(--foreground))"
+  },
+  barStyle: {
+    fill: "hsl(var(--primary))",
+    radius: [0, 4, 4, 0]
+  }
+};
 
 export const AHTAgentView = () => {
   const { data: agentData, isLoading } = useQuery({
@@ -43,18 +56,6 @@ export const AHTAgentView = () => {
     );
   }
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-popover p-3 rounded-lg border border-border shadow-lg">
-          <p className="text-foreground font-medium">{label}</p>
-          <p className="text-primary">AHT: {payload[0].value}</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -72,24 +73,27 @@ export const AHTAgentView = () => {
           <div className="h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={agentData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke={chartConfig.gridStroke} 
+                />
                 <XAxis 
                   type="number" 
-                  tick={{ fill: 'hsl(var(--foreground))' }}
-                  stroke="hsl(var(--foreground))"
+                  tick={chartConfig.axisStyle}
+                  stroke={chartConfig.axisStyle.stroke}
                 />
                 <YAxis 
                   dataKey="agent_name" 
                   type="category" 
                   width={120}
-                  tick={{ fill: 'hsl(var(--foreground))' }}
-                  stroke="hsl(var(--foreground))"
+                  tick={chartConfig.axisStyle}
+                  stroke={chartConfig.axisStyle.stroke}
                 />
-                <Tooltip content={<CustomTooltip />} />
+                <Tooltip content={<AHTCustomTooltip />} />
                 <Bar 
                   dataKey="value" 
-                  fill="hsl(var(--primary))"
-                  radius={[0, 4, 4, 0]}
+                  fill={chartConfig.barStyle.fill}
+                  radius={chartConfig.barStyle.radius}
                 />
               </BarChart>
             </ResponsiveContainer>
