@@ -15,6 +15,8 @@ export const useAuthState = () => {
     console.log('Auth state hook initialized');
     
     const fetchUserData = async (userId: string) => {
+      if (!mountedRef.current) return;
+      
       try {
         console.log('Starting user data fetch for ID:', userId);
         
@@ -29,25 +31,21 @@ export const useAuthState = () => {
         if (error) {
           console.error('Error fetching user data:', error);
           toast.error('Error loading user data');
-          setLoading(false);
           return;
         }
 
         if (!data) {
           console.log('No user data found for ID:', userId);
           toast.error('User data not found');
-          setLoading(false);
           return;
         }
 
         console.log('User data fetched successfully');
         setUserData(data);
-        setLoading(false);
       } catch (error) {
         console.error('Unexpected error fetching user data:', error);
         if (mountedRef.current) {
           toast.error('Unexpected error loading user data');
-          setLoading(false);
         }
       }
     };
@@ -64,13 +62,14 @@ export const useAuthState = () => {
 
         if (initialSession?.user) {
           await fetchUserData(initialSession.user.id);
-        } else {
-          setLoading(false);
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
         if (mountedRef.current) {
           toast.error('Error initializing authentication');
+        }
+      } finally {
+        if (mountedRef.current) {
           setLoading(false);
         }
       }
