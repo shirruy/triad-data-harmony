@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
-export const useLoadingTimeout = (loading: boolean, timeoutDuration: number = 2000) => {
+export const useLoadingTimeout = (loading: boolean, timeoutDuration: number = 10000) => {
   const [timeoutError, setTimeoutError] = useState(false);
 
   useEffect(() => {

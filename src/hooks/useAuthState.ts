@@ -12,45 +12,50 @@ export const useAuthState = () => {
   const mountedRef = useRef(true);
   const initializationAttempted = useRef(false);
 
-  useEffect(() => {
-    const fetchUserData = async (userId: string) => {
+  const fetchUserData = async (userId: string) => {
+    if (!mountedRef.current) return;
+    
+    try {
+      console.log('Fetching user data for ID:', userId);
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
       if (!mountedRef.current) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', userId)
-          .maybeSingle();
 
-        if (!mountedRef.current) return;
-
-        if (error) {
-          console.error('Error fetching user data:', error);
-          toast.error('Error loading user data');
-          return;
-        }
-
-        if (!data) {
-          console.error('No user data found for ID:', userId);
-          toast.error('User data not found');
-          return;
-        }
-
-        setUserData(data);
-      } catch (error) {
-        if (mountedRef.current) {
-          console.error('Unexpected error fetching user data:', error);
-          toast.error('Unexpected error loading user data');
-        }
+      if (error) {
+        console.error('Error fetching user data:', error);
+        toast.error('Error loading user data');
+        return;
       }
-    };
 
+      if (!data) {
+        console.error('No user data found for ID:', userId);
+        toast.error('User data not found');
+        return;
+      }
+
+      console.log('User data fetched successfully:', data);
+      setUserData(data);
+      setLoading(false);
+    } catch (error) {
+      if (mountedRef.current) {
+        console.error('Unexpected error fetching user data:', error);
+        toast.error('Unexpected error loading user data');
+        setLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
     const initializeAuth = async () => {
       if (initializationAttempted.current) return;
       initializationAttempted.current = true;
 
       try {
+        console.log('Starting auth initialization...');
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         
         if (!mountedRef.current) return;
@@ -60,14 +65,13 @@ export const useAuthState = () => {
 
         if (initialSession?.user) {
           await fetchUserData(initialSession.user.id);
+        } else {
+          setLoading(false);
         }
       } catch (error) {
         if (mountedRef.current) {
           console.error('Auth initialization error:', error);
           toast.error('Error initializing authentication');
-        }
-      } finally {
-        if (mountedRef.current) {
           setLoading(false);
         }
       }
@@ -76,6 +80,7 @@ export const useAuthState = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       if (!mountedRef.current) return;
 
+      console.log('Auth state changed:', event);
       setSession(newSession);
       setUser(newSession?.user ?? null);
 
@@ -83,6 +88,7 @@ export const useAuthState = () => {
         await fetchUserData(newSession.user.id);
       } else {
         setUserData(null);
+        setLoading(false);
       }
     });
 
