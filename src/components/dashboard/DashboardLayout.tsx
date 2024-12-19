@@ -7,6 +7,8 @@ import { AHTUploadButton } from "@/components/aht/AHTUploadButton";
 import { AHTDateRangeSelector } from "@/components/aht/AHTDateRangeSelector";
 import { AHTExportButton } from "@/components/aht/AHTExportButton";
 import { AHTSearchFilter } from "@/components/aht/AHTSearchFilter";
+import { TeamPerformance } from "@/components/aht/TeamPerformance";
+import { HistoricalTrend } from "@/components/aht/HistoricalTrend";
 import { useAuth } from "@/contexts/AuthContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
