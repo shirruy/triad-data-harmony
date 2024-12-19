@@ -5,6 +5,9 @@ import { AHTMetrics } from "@/components/AHTMetrics";
 import { AHTCharts } from "@/components/AHTCharts";
 import { AHTDataUploadButton } from "@/components/aht/AHTDataUploadButton";
 import { useAuth } from "@/contexts/AuthContext";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/dashboard/AppSidebar";
+import { Toaster } from "sonner";
 
 export const DashboardLayout = () => {
   const { userData } = useAuth();
@@ -32,45 +35,51 @@ export const DashboardLayout = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <motion.div 
-        className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div variants={itemVariants}>
-          <DashboardHeader canEdit={canUploadData} />
-        </motion.div>
-        
-        <motion.div 
-          variants={itemVariants}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg shadow-md"
-        >
-          <p className="text-sm font-medium flex items-center gap-2">
-            <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-            Last data update: 4 hours ago
-          </p>
-        </motion.div>
+    <SidebarProvider>
+      <div className="min-h-screen bg-slate-50 flex w-full">
+        <AppSidebar />
+        <div className="flex-1">
+          <motion.div 
+            className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={itemVariants}>
+              <DashboardHeader canEdit={canUploadData} />
+            </motion.div>
+            
+            <motion.div 
+              variants={itemVariants}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg shadow-md"
+            >
+              <p className="text-sm font-medium flex items-center gap-2">
+                <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                Last data update: 4 hours ago
+              </p>
+            </motion.div>
 
-        {canUploadData && (
-          <motion.div variants={itemVariants}>
-            <AHTDataUploadButton />
+            {canUploadData && (
+              <motion.div variants={itemVariants}>
+                <AHTDataUploadButton />
+              </motion.div>
+            )}
+
+            <motion.div variants={itemVariants}>
+              <AHTInsight />
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <AHTMetrics />
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <AHTCharts />
+            </motion.div>
           </motion.div>
-        )}
-
-        <motion.div variants={itemVariants}>
-          <AHTInsight />
-        </motion.div>
-
-        <motion.div variants={itemVariants}>
-          <AHTMetrics />
-        </motion.div>
-
-        <motion.div variants={itemVariants}>
-          <AHTCharts />
-        </motion.div>
-      </motion.div>
-    </div>
+        </div>
+        <Toaster position="top-right" />
+      </div>
+    </SidebarProvider>
   );
 };
