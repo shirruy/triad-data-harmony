@@ -11,17 +11,19 @@ import Index from "./pages/Index";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 2,
+      retry: 1,
       staleTime: 30000,
       gcTime: 3600000,
       refetchOnWindowFocus: false,
+      refetchOnMount: true,
+      refetchOnReconnect: true,
     },
   },
 });
 
 const App = () => (
-  <BrowserRouter>
-    <QueryClientProvider client={queryClient}>
+  <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
       <AuthProvider>
         <TooltipProvider>
           <Routes>
@@ -35,11 +37,16 @@ const App = () => (
             />
           </Routes>
           <Toaster />
-          <Sonner />
+          <Sonner 
+            position="top-right"
+            closeButton
+            richColors
+            expand={false}
+          />
         </TooltipProvider>
       </AuthProvider>
-    </QueryClientProvider>
-  </BrowserRouter>
+    </BrowserRouter>
+  </QueryClientProvider>
 );
 
 export default App;
