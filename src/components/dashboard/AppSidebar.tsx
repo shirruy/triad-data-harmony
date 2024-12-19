@@ -81,7 +81,7 @@ export function AppSidebar() {
       <Sidebar className="border-r border-slate-200">
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200">
           <h1 className="text-xl font-bold text-slate-900">WFM Analytics</h1>
-          <SidebarTrigger asChild>
+          <SidebarTrigger>
             <button className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -95,8 +95,8 @@ export function AppSidebar() {
                 {items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <Tooltip>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton asChild>
+                      <TooltipTrigger>
+                        <SidebarMenuButton>
                           <a 
                             href={item.url} 
                             className={cn(
@@ -122,7 +122,7 @@ export function AppSidebar() {
       </Sidebar>
       {isMobile && (
         <div className="fixed bottom-4 right-4 z-50">
-          <SidebarTrigger asChild>
+          <SidebarTrigger>
             <button className="p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors">
               <ChevronRight className="h-6 w-6" />
             </button>
