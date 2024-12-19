@@ -20,12 +20,32 @@ export const RegisterForm = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("operations");
   const [registrationKey, setRegistrationKey] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { register } = useAuth();
   const { toast } = useToast();
+
+  const validatePassword = (password: string) => {
+    if (password.length < 6) {
+      return "Password must be at least 6 characters long";
+    }
+    return null;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Password validation
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      toast({
+        variant: "destructive",
+        title: "Invalid Password",
+        description: passwordError,
+      });
+      return;
+    }
+
+    // Registration key validation
     if (!validateRegistrationKey(role, registrationKey)) {
       toast({
         variant: "destructive",
@@ -35,7 +55,19 @@ export const RegisterForm = () => {
       return;
     }
 
-    await register(email, password, role);
+    setIsSubmitting(true);
+    try {
+      await register(email, password, role);
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast({
+        variant: "destructive",
+        title: "Registration Failed",
+        description: error.message || "An unexpected error occurred",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -56,6 +88,7 @@ export const RegisterForm = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isSubmitting}
               className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg"
             />
           </div>
@@ -69,14 +102,20 @@ export const RegisterForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isSubmitting}
               className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg"
+              placeholder="Minimum 6 characters"
             />
           </div>
           <div className="space-y-2 animate-fade-in" style={{ animationDelay: '300ms' }}>
             <label htmlFor="role" className="text-sm font-medium">
               Role
             </label>
-            <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
+            <Select 
+              value={role} 
+              onValueChange={(value: UserRole) => setRole(value)}
+              disabled={isSubmitting}
+            >
               <SelectTrigger className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg">
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
@@ -97,6 +136,7 @@ export const RegisterForm = () => {
               value={registrationKey}
               onChange={(e) => setRegistrationKey(e.target.value)}
               required
+              disabled={isSubmitting}
               placeholder="Enter the registration key for your role"
               className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg"
             />
@@ -105,8 +145,9 @@ export const RegisterForm = () => {
             type="submit" 
             className="w-full animate-fade-in transform hover:scale-105 transition-all duration-300"
             style={{ animationDelay: '500ms' }}
+            disabled={isSubmitting}
           >
-            Register
+            {isSubmitting ? "Registering..." : "Register"}
           </Button>
         </form>
       </CardContent>

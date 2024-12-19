@@ -12,7 +12,7 @@ export const useAuthActions = () => {
         .from('users')
         .select('email, role')
         .eq('email', email)
-        .maybeSingle(); // Changed from .single() to .maybeSingle()
+        .maybeSingle();
 
       if (userCheckError) {
         console.error("Error checking user:", userCheckError);
@@ -28,7 +28,6 @@ export const useAuthActions = () => {
 
       console.log("User found, attempting login...");
 
-      // Attempt to sign in with credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -37,7 +36,6 @@ export const useAuthActions = () => {
       if (error) {
         console.error("Sign in error:", error);
         
-        // Handle specific error cases
         if (error.message.includes("Invalid login credentials")) {
           toast.error("Incorrect password. Please try again.");
         } else if (error.message.includes("Email not confirmed")) {
@@ -67,12 +65,10 @@ export const useAuthActions = () => {
         .from('users')
         .select('email')
         .eq('email', email)
-        .maybeSingle(); // Changed from .single() to .maybeSingle()
+        .maybeSingle();
 
       if (checkError) {
-        console.error("Error checking existing user:", checkError);
-        toast.error("An error occurred while checking user existence");
-        return;
+        throw new Error("Error checking existing user");
       }
 
       if (existingUser) {
@@ -81,7 +77,7 @@ export const useAuthActions = () => {
       }
 
       // Attempt to sign up the user
-      const signUpResponse = await supabase.auth.signUp({
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -91,22 +87,24 @@ export const useAuthActions = () => {
         }
       });
 
-      if (signUpResponse.error) {
-        console.error("Registration error:", signUpResponse.error);
-        throw signUpResponse.error;
+      if (signUpError) {
+        if (signUpError.message.includes("weak_password")) {
+          toast.error("Password is too weak. Please use at least 6 characters.");
+        } else {
+          toast.error(signUpError.message || "Registration failed");
+        }
+        return;
       }
 
-      const user = signUpResponse.data.user;
-      if (!user) {
-        console.error("User creation failed - no user data returned");
-        throw new Error("User creation failed");
+      if (!data.user) {
+        throw new Error("User creation failed - no user data returned");
       }
 
       console.log("User created successfully, creating profile...");
 
       // Create the user profile
       const { error: profileError } = await supabase.rpc('create_new_user', {
-        user_id: user.id,
+        user_id: data.user.id,
         user_email: email,
         user_role: role
       });
