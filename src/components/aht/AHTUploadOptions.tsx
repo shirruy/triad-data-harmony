@@ -1,60 +1,6 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { useAHTDataUpload } from "@/hooks/aht/useAHTDataUpload";
-
-export const AHTUploadOptions = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const { uploadData } = useAHTDataUpload();
-  const { toast } = useToast();
-
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setIsLoading(true);
-      try {
-        await uploadData(file, type);
-        toast({
-          title: "Success",
-          description: "Data uploaded successfully",
-        });
-      } catch (error) {
-        console.error('Upload error:', error);
-        toast({
-          title: "Error",
-          description: "Failed to upload data",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };
-
-  return (
-    <div className="grid grid-cols-1 gap-4">
-      <UploadOption
-        id="metrics-upload"
-        label="Upload Metrics"
-        isLoading={isLoading}
-        onChange={(e) => handleFileUpload(e, 'metrics')}
-      />
-      <UploadOption
-        id="wave-upload"
-        label="Upload Wave Data"
-        isLoading={isLoading}
-        onChange={(e) => handleFileUpload(e, 'wave')}
-      />
-      <UploadOption
-        id="team-upload"
-        label="Upload Team Data"
-        isLoading={isLoading}
-        onChange={(e) => handleFileUpload(e, 'team')}
-      />
-    </div>
-  );
-};
 
 interface UploadOptionProps {
   id: string;
@@ -88,3 +34,41 @@ const UploadOption = ({ id, label, isLoading, onChange }: UploadOptionProps) => 
     </label>
   </div>
 );
+
+export const AHTUploadOptions = () => {
+  const { uploadData, isLoading } = useAHTDataUpload();
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: string) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      try {
+        await uploadData(file, type);
+      } catch (error) {
+        console.error('Upload error:', error);
+      }
+    }
+  };
+
+  return (
+    <div className="grid grid-cols-1 gap-4">
+      <UploadOption
+        id="metrics-upload"
+        label="Upload Metrics"
+        isLoading={isLoading}
+        onChange={(e) => handleFileUpload(e, 'metrics')}
+      />
+      <UploadOption
+        id="wave-upload"
+        label="Upload Wave Data"
+        isLoading={isLoading}
+        onChange={(e) => handleFileUpload(e, 'wave')}
+      />
+      <UploadOption
+        id="team-upload"
+        label="Upload Team Data"
+        isLoading={isLoading}
+        onChange={(e) => handleFileUpload(e, 'team')}
+      />
+    </div>
+  );
+};
