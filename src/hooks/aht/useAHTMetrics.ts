@@ -19,8 +19,7 @@ export const useAHTMetrics = (startDate?: Date, endDate?: Date) => {
     try {
       let query = supabase
         .from('aht_metrics')
-        .select('calls_offered, answered_calls, abandon_calls')
-        .order('created_at', { ascending: false });
+        .select('calls_offered, answered_calls, abandon_calls');
 
       if (startDate && endDate) {
         query = query

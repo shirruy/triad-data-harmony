@@ -14,7 +14,7 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
     queryFn: async () => {
       let query = supabase
         .from('performance_metrics')
-        .select('name, value');
+        .select('*');
 
       if (startDate && endDate) {
         query = query
@@ -26,18 +26,21 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
       if (error) throw error;
 
       // Create a map to store aggregated values
-      const metricsMap = new Map<string, number>();
+      const metricsMap = new Map<string, { total: number, count: number }>();
 
-      // Sum up all values for each metric
+      // Sum up all values and count records for each metric
       data.forEach(record => {
-        const currentValue = metricsMap.get(record.name) || 0;
-        metricsMap.set(record.name, currentValue + record.value);
+        const current = metricsMap.get(record.name) || { total: 0, count: 0 };
+        metricsMap.set(record.name, {
+          total: current.total + record.value,
+          count: current.count + 1
+        });
       });
 
-      // Convert map to array and sort by value
-      const aggregatedData = Array.from(metricsMap.entries()).map(([name, value]) => ({
+      // Convert map to array and calculate averages
+      const aggregatedData = Array.from(metricsMap.entries()).map(([name, stats]) => ({
         name,
-        value
+        value: Math.round(stats.total / stats.count) // Calculate average
       }));
 
       return aggregatedData.sort((a, b) => b.value - a.value);
@@ -53,11 +56,11 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
     <Card>
       <div className="p-4">
         <h2 className="text-lg font-semibold">Performance Metrics</h2>
-        <div className="mt-4">
+        <div className="mt-4 space-y-2">
           {performanceData?.map((metric) => (
-            <div key={metric.name} className="flex justify-between">
-              <span>{metric.name}</span>
-              <span>{metric.value.toLocaleString()}</span>
+            <div key={metric.name} className="flex justify-between items-center p-2 hover:bg-muted/50 rounded-lg">
+              <span className="font-medium">{metric.name}</span>
+              <span className="text-muted-foreground">{metric.value.toLocaleString()}</span>
             </div>
           ))}
         </div>
