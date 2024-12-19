@@ -10,8 +10,6 @@ export const useAuthState = () => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
-  const initializationAttempted = useRef(false);
-  const authStateChangeHandled = useRef(false);
 
   const fetchUserData = async (userId: string) => {
     if (!mountedRef.current) return;
@@ -42,76 +40,72 @@ export const useAuthState = () => {
 
       console.log('User data fetched successfully:', data);
       setUserData(data);
-      setLoading(false);
     } catch (error) {
       if (mountedRef.current) {
         console.error('Unexpected error fetching user data:', error);
         toast.error('Unexpected error loading user data');
+      }
+    } finally {
+      if (mountedRef.current) {
         setLoading(false);
       }
     }
   };
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      if (initializationAttempted.current) return;
-      initializationAttempted.current = true;
+    let authListener: any;
 
+    const initializeAuth = async () => {
       try {
-        console.log('Starting auth initialization...');
+        // Get initial session
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         
-        if (!mountedRef.current) return;
-
-        if (initialSession?.user) {
-          setSession(initialSession);
-          setUser(initialSession.user);
-          await fetchUserData(initialSession.user.id);
-        } else {
-          setSession(null);
-          setUser(null);
-          setUserData(null);
-          setLoading(false);
-        }
-      } catch (error) {
         if (mountedRef.current) {
-          console.error('Auth initialization error:', error);
+          if (initialSession?.user) {
+            setSession(initialSession);
+            setUser(initialSession.user);
+            await fetchUserData(initialSession.user.id);
+          } else {
+            setSession(null);
+            setUser(null);
+            setUserData(null);
+            setLoading(false);
+          }
+        }
+
+        // Set up auth state change listener
+        authListener = supabase.auth.onAuthStateChange(async (event, newSession) => {
+          console.log('Auth state changed:', event, newSession?.user?.id);
+          
+          if (mountedRef.current) {
+            if (newSession?.user) {
+              setSession(newSession);
+              setUser(newSession.user);
+              await fetchUserData(newSession.user.id);
+            } else {
+              setSession(null);
+              setUser(null);
+              setUserData(null);
+              setLoading(false);
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        if (mountedRef.current) {
           toast.error('Error initializing authentication');
           setLoading(false);
         }
       }
     };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      if (!mountedRef.current || authStateChangeHandled.current) return;
-      authStateChangeHandled.current = true;
-
-      console.log('Auth state changed:', event);
-      
-      try {
-        if (newSession?.user) {
-          setSession(newSession);
-          setUser(newSession.user);
-          await fetchUserData(newSession.user.id);
-        } else {
-          setSession(null);
-          setUser(null);
-          setUserData(null);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Error handling auth state change:', error);
-        setLoading(false);
-      } finally {
-        authStateChangeHandled.current = false;
-      }
-    });
-
     initializeAuth();
 
     return () => {
       mountedRef.current = false;
-      subscription.unsubscribe();
+      if (authListener) {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, []);
 
