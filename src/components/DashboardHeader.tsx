@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { RefreshCw, LogOut } from "lucide-react";
+import { LogOut, RefreshCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardHeaderProps {
-  onRefresh: () => void;
+  onRefresh?: () => void;
   canEdit: boolean;
 }
 
@@ -17,7 +17,7 @@ export const DashboardHeader = ({ onRefresh, canEdit }: DashboardHeaderProps) =>
         <p className="text-sm text-gray-500">Logged in as: {userData?.role}</p>
       </div>
       <div className="flex gap-2">
-        {canEdit && (
+        {canEdit && onRefresh && (
           <Button onClick={onRefresh} className="flex items-center gap-2">
             <RefreshCw className="h-4 w-4" />
             Refresh All
