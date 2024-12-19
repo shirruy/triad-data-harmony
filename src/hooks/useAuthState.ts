@@ -18,9 +18,7 @@ export const useAuthState = () => {
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single();
-
-      if (!mountedRef.current) return;
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching user data:', error);
@@ -28,15 +26,45 @@ export const useAuthState = () => {
         return;
       }
 
+      console.log('User data fetch result:', data);
+      
       if (!data) {
-        console.error('No user data found for ID:', userId);
-        toast.error('User data not found');
-        return;
-      }
+        console.warn('No user data found for ID:', userId);
+        // Instead of showing an error, we'll create the user data
+        const { error: insertError } = await supabase
+          .rpc('create_new_user', {
+            user_id: userId,
+            user_email: user?.email || '',
+            user_role: 'operations'
+          });
 
-      console.log('User data fetched successfully:', data);
-      if (mountedRef.current) {
-        setUserData(data);
+        if (insertError) {
+          console.error('Error creating user data:', insertError);
+          toast.error('Error creating user profile');
+          return;
+        }
+
+        // Fetch the newly created user data
+        const { data: newData, error: refetchError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', userId)
+          .maybeSingle();
+
+        if (refetchError || !newData) {
+          console.error('Error fetching new user data:', refetchError);
+          toast.error('Error loading user profile');
+          return;
+        }
+
+        if (mountedRef.current) {
+          setUserData(newData);
+          toast.success('User profile created successfully');
+        }
+      } else {
+        if (mountedRef.current) {
+          setUserData(data);
+        }
       }
     } catch (error) {
       console.error('Unexpected error fetching user data:', error);
