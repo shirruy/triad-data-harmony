@@ -14,11 +14,7 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
     queryFn: async () => {
       let query = supabase
         .from('aht_agent_data')
-        .select(`
-          agent_name,
-          value,
-          created_at
-        `);
+        .select('agent_name, value, created_at');
 
       if (startDate && endDate) {
         query = query
@@ -29,9 +25,9 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Aggregate data by agent
+      // Group data by agent and calculate averages
       const agentMap = new Map();
-      data.forEach(record => {
+      data?.forEach(record => {
         if (!agentMap.has(record.agent_name)) {
           agentMap.set(record.agent_name, {
             total: 0,

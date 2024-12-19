@@ -29,7 +29,7 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
       const metricsMap = new Map();
 
       // Sum up all values and count records for each metric
-      data.forEach(record => {
+      data?.forEach(record => {
         if (!metricsMap.has(record.name)) {
           metricsMap.set(record.name, {
             total: 0,

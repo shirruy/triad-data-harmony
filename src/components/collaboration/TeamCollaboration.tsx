@@ -8,13 +8,6 @@ interface TeamCollaborationProps {
   endDate?: Date;
 }
 
-interface CollaborationData {
-  id: string;
-  team_name: string;
-  collaboration_score: number;
-  created_at: string;
-}
-
 export const TeamCollaboration = ({ startDate, endDate }: TeamCollaborationProps) => {
   const { data: collaborationData } = useQuery({
     queryKey: ['team-collaboration', startDate, endDate],
@@ -32,9 +25,9 @@ export const TeamCollaboration = ({ startDate, endDate }: TeamCollaborationProps
       const { data, error } = await query;
       if (error) throw error;
 
-      // Aggregate collaboration scores by team
+      // Group data by team and calculate averages
       const teamMap = new Map();
-      data.forEach((record: CollaborationData) => {
+      data?.forEach(record => {
         if (!teamMap.has(record.team_name)) {
           teamMap.set(record.team_name, {
             total: 0,
