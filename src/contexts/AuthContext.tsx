@@ -98,14 +98,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             email: authData.user.email,
             role: role,
           }
-        ])
-        .select()
-        .single();
+        ]);
 
       if (userError) {
         console.error("Error inserting user data:", userError);
-        // If user data insertion fails, we should clean up the auth user
-        await supabase.auth.admin.deleteUser(authData.user.id);
+        // Note: We can't delete the auth user from the client side, 
+        // but Supabase will clean up unverified users automatically
         throw userError;
       }
 
