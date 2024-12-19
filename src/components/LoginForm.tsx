@@ -3,15 +3,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ui/use-toast";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { signIn } = useAuth();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signIn(email, password);
+    try {
+      await signIn(email, password);
+    } catch (error: any) {
+      if (error.message.includes("Invalid login credentials")) {
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: "User not found. Please check your credentials or register if you don't have an account.",
+        });
+      }
+    }
   };
 
   return (
