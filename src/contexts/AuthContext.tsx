@@ -35,11 +35,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      console.log("Auth state changed:", _event, session);
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserData(session.user.id);
+        await fetchUserData(session.user.id);
       } else {
         setUserData(null);
         setLoading(false);
@@ -51,14 +52,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchUserData = async (userId: string) => {
     try {
+      console.log("Fetching user data for ID:", userId);
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user data:', error);
+        throw error;
+      }
 
+      console.log("Fetched user data:", data);
       setUserData(data);
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -69,6 +75,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const register = async (email: string, password: string, role: UserRole = 'operations') => {
     try {
+      // First, create the auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -76,18 +83,30 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (authError) throw authError;
 
-      if (authData.user) {
-        const { error: userError } = await supabase
-          .from('users')
-          .insert([
-            {
-              id: authData.user.id,
-              email: authData.user.email,
-              role: role,
-            },
-          ]);
+      if (!authData.user) {
+        throw new Error("User creation failed");
+      }
 
-        if (userError) throw userError;
+      console.log("Auth user created:", authData.user);
+
+      // Then insert the user data
+      const { error: userError } = await supabase
+        .from('users')
+        .insert([
+          {
+            id: authData.user.id,
+            email: authData.user.email,
+            role: role,
+          }
+        ])
+        .select()
+        .single();
+
+      if (userError) {
+        console.error("Error inserting user data:", userError);
+        // If user data insertion fails, we should clean up the auth user
+        await supabase.auth.admin.deleteUser(authData.user.id);
+        throw userError;
       }
 
       toast({
@@ -95,31 +114,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "Registration successful. Please check your email for verification.",
       });
     } catch (error: any) {
+      console.error("Registration error:", error);
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
       });
+      throw error;
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log("Attempting sign in for:", email);
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
+      
       toast({
         title: "Success",
         description: "Successfully signed in",
       });
     } catch (error: any) {
+      console.error("Sign in error:", error);
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
       });
+      throw error;
     }
   };
 
@@ -133,11 +158,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         description: "Successfully signed out",
       });
     } catch (error: any) {
+      console.error("Sign out error:", error);
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
       });
+      throw error;
     }
   };
 
