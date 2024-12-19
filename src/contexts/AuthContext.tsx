@@ -75,7 +75,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log("Attempting sign in for:", email);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -83,30 +82,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error("Sign in error:", error);
+        
+        // Handle specific error cases
         if (error.message.includes("Invalid login credentials")) {
           toast({
             variant: "destructive",
             title: "Login Failed",
-            description: "Invalid email or password. Please try again.",
+            description: "Invalid email or password. Please check your credentials and try again.",
           });
         } else {
           toast({
             variant: "destructive",
-            title: "Error",
-            description: error.message,
+            title: "Login Error",
+            description: "An error occurred during login. Please try again.",
           });
         }
-        throw error;
+        return;
       }
 
       if (data?.user) {
         toast({
-          title: "Success",
-          description: "Successfully signed in",
+          title: "Welcome back!",
+          description: "You have successfully signed in.",
         });
       }
     } catch (error: any) {
-      throw error;
+      console.error("Unexpected error during sign in:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+      });
     }
   };
 
@@ -122,8 +128,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (!authData.user) {
         throw new Error("User creation failed");
       }
-
-      console.log("Auth user created:", authData.user);
 
       const { error: userError } = await supabase.rpc('create_new_user', {
         user_id: authData.user.id,
