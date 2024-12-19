@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, PhoneCall, PhoneForwarded, PhoneOff } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { motion } from "framer-motion";
 
 interface MetricsData {
   callsOffered: number;
@@ -68,32 +69,73 @@ export const AHTMetrics = () => {
     }
   };
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <MetricCard
-        title="Calls Offered"
-        value={metrics.callsOffered.toLocaleString()}
-      />
-      <MetricCard
-        title="Answered Calls"
-        value={metrics.answeredCalls.toLocaleString()}
-      />
-      <MetricCard
-        title="Abandon Calls"
-        value={metrics.abandonCalls.toLocaleString()}
-      />
+      <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={0}>
+        <MetricCard
+          title="Calls Offered"
+          value={metrics.callsOffered.toLocaleString()}
+          icon={PhoneCall}
+          color="blue"
+        />
+      </motion.div>
+      <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={1}>
+        <MetricCard
+          title="Answered Calls"
+          value={metrics.answeredCalls.toLocaleString()}
+          icon={PhoneForwarded}
+          color="green"
+        />
+      </motion.div>
+      <motion.div variants={cardVariants} initial="hidden" animate="visible" custom={2}>
+        <MetricCard
+          title="Abandon Calls"
+          value={metrics.abandonCalls.toLocaleString()}
+          icon={PhoneOff}
+          color="red"
+        />
+      </motion.div>
     </div>
   );
 };
 
-const MetricCard = ({ title, value }: { title: string; value: string }) => (
-  <Card className="bg-blue-600 text-white">
-    <CardHeader className="flex flex-row items-center justify-between pb-2">
-      <CardTitle className="text-sm font-medium text-white">{title}</CardTitle>
-      <HelpCircle className="h-4 w-4 text-white/70" />
-    </CardHeader>
-    <CardContent>
-      <div className="text-4xl font-bold">{value}</div>
-    </CardContent>
-  </Card>
-);
+const MetricCard = ({ 
+  title, 
+  value, 
+  icon: Icon,
+  color 
+}: { 
+  title: string; 
+  value: string;
+  icon: any;
+  color: "blue" | "green" | "red";
+}) => {
+  const colorClasses = {
+    blue: "bg-blue-600 text-white",
+    green: "bg-emerald-600 text-white",
+    red: "bg-rose-600 text-white"
+  };
+
+  return (
+    <Card className={`${colorClasses[color]} shadow-lg hover:scale-105 transition-transform duration-300`}>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <CardTitle className="text-sm font-medium text-white/90">{title}</CardTitle>
+        <Icon className="h-5 w-5 text-white/70" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-3xl font-bold">{value}</div>
+      </CardContent>
+    </Card>
+  );
+};

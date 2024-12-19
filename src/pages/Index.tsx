@@ -1,37 +1,76 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { DashboardHeader } from "@/components/DashboardHeader";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AHTInsight } from "@/components/AHTInsight";
 import { AHTMetrics } from "@/components/AHTMetrics";
 import { AHTCharts } from "@/components/AHTCharts";
 import { AHTDataUpload } from "@/components/AHTDataUpload";
+import { motion } from "framer-motion";
 
 const Index = () => {
   const { userData } = useAuth();
   const canUploadData = userData?.role === 'administrator' || userData?.role === 'analyst';
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.5
+      }
+    }
+  };
+
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-gray-50">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <DashboardHeader canEdit={canUploadData} />
+    <div className="min-h-screen bg-slate-50">
+      <motion.div 
+        className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={itemVariants}>
+          <DashboardHeader canEdit={canUploadData} />
+        </motion.div>
         
-        {/* Last Updated Info */}
-        <div className="bg-blue-600 text-white p-3 rounded-lg">
-          <p className="text-sm">Data was updated 4 hours ago</p>
-        </div>
+        <motion.div 
+          variants={itemVariants}
+          className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-lg shadow-md"
+        >
+          <p className="text-sm font-medium flex items-center gap-2">
+            <span className="inline-block w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+            Last data update: 4 hours ago
+          </p>
+        </motion.div>
 
-        {/* Data Upload Section - Only visible to admin and analysts */}
-        {canUploadData && <AHTDataUpload />}
+        {canUploadData && (
+          <motion.div variants={itemVariants}>
+            <AHTDataUpload />
+          </motion.div>
+        )}
 
-        {/* AHT Insight Card */}
-        <AHTInsight />
+        <motion.div variants={itemVariants}>
+          <AHTInsight />
+        </motion.div>
 
-        {/* Metrics Cards */}
-        <AHTMetrics />
+        <motion.div variants={itemVariants}>
+          <AHTMetrics />
+        </motion.div>
 
-        {/* Charts Section */}
-        <AHTCharts />
-      </div>
+        <motion.div variants={itemVariants}>
+          <AHTCharts />
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
