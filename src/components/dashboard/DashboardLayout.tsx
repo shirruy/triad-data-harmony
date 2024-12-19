@@ -5,7 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { Toaster } from "sonner";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Breadcrumbs } from "@/components/dashboard/Breadcrumbs";
 import { QuickActions } from "./QuickActions";
 import { DashboardControls } from "./DashboardControls";
@@ -19,8 +19,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { userData } = useAuth();
   const { toast } = useToast();
   const canUploadData = userData?.role === 'administrator' || userData?.role === 'analyst';
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {
     toast({
@@ -28,15 +26,6 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       description: "Your dashboard is up to date.",
     });
   }, []);
-
-  const handleDateRangeChange = (startDate: Date | undefined, endDate: Date | undefined) => {
-    if (startDate && endDate) {
-      toast({
-        title: "Date Range Selected",
-        description: "Data will be filtered accordingly.",
-      });
-    }
-  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -69,9 +58,16 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             <DashboardControls 
               canUploadData={canUploadData}
-              onDateRangeChange={handleDateRangeChange}
-              onSearchChange={setSearchTerm}
-              onFilterChange={setFilterType}
+              onDateRangeChange={(startDate, endDate) => {
+                if (startDate && endDate) {
+                  toast({
+                    title: "Date Range Selected",
+                    description: "Data will be filtered accordingly.",
+                  });
+                }
+              }}
+              onSearchChange={(value) => {}}
+              onFilterChange={(value) => {}}
             />
             
             <QuickActions canUploadData={canUploadData} />
