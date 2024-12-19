@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { BarChart2, Download, Users, Bell, Calendar } from "lucide-react";
+import { BarChart2, Users, Bell, Calendar } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface QuickActionsProps {
@@ -60,13 +60,13 @@ export const QuickActions = ({ canUploadData }: QuickActionsProps) => {
       variants={itemVariants}
       className="gradient-border animate-glow"
     >
-      <div className="bg-card p-6 rounded-lg space-y-3">
+      <div className="bg-card p-4 sm:p-6 rounded-lg space-y-3">
         <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <motion.button 
-            className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-4 rounded-lg text-left backdrop-blur-sm flex flex-col gap-2"
+            className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-3 sm:p-4 rounded-lg text-left backdrop-blur-sm flex flex-col gap-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => handleAction('report')}
@@ -75,11 +75,11 @@ export const QuickActions = ({ canUploadData }: QuickActionsProps) => {
               <BarChart2 className="h-5 w-5 text-primary" />
               <p className="font-medium text-primary">Generate Report</p>
             </div>
-            <p className="text-sm text-muted-foreground">Create custom reports</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Create custom reports</p>
           </motion.button>
 
           <motion.button 
-            className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-4 rounded-lg text-left backdrop-blur-sm flex flex-col gap-2"
+            className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-3 sm:p-4 rounded-lg text-left backdrop-blur-sm flex flex-col gap-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => handleAction('team')}
@@ -88,11 +88,11 @@ export const QuickActions = ({ canUploadData }: QuickActionsProps) => {
               <Users className="h-5 w-5 text-primary" />
               <p className="font-medium text-primary">Team Overview</p>
             </div>
-            <p className="text-sm text-muted-foreground">View team performance</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">View team performance</p>
           </motion.button>
 
           <motion.button 
-            className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-4 rounded-lg text-left backdrop-blur-sm flex flex-col gap-2"
+            className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-3 sm:p-4 rounded-lg text-left backdrop-blur-sm flex flex-col gap-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => handleAction('alerts')}
@@ -101,11 +101,11 @@ export const QuickActions = ({ canUploadData }: QuickActionsProps) => {
               <Bell className="h-5 w-5 text-primary" />
               <p className="font-medium text-primary">Performance Alerts</p>
             </div>
-            <p className="text-sm text-muted-foreground">Check active alerts</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">Check active alerts</p>
           </motion.button>
 
           <motion.button 
-            className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-4 rounded-lg text-left backdrop-blur-sm flex flex-col gap-2"
+            className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-3 sm:p-4 rounded-lg text-left backdrop-blur-sm flex flex-col gap-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => handleAction('schedule')}
@@ -114,7 +114,7 @@ export const QuickActions = ({ canUploadData }: QuickActionsProps) => {
               <Calendar className="h-5 w-5 text-primary" />
               <p className="font-medium text-primary">Schedule Analysis</p>
             </div>
-            <p className="text-sm text-muted-foreground">View scheduling data</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">View scheduling data</p>
           </motion.button>
         </div>
       </div>

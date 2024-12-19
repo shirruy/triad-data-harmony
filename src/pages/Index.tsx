@@ -9,26 +9,28 @@ import { AHTAgentView } from "@/components/aht/AHTAgentView";
 const Index = () => {
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        <AHTMetrics />
+      <div className="space-y-4 sm:space-y-8">
+        <div className="p-2 sm:p-8">
+          <AHTMetrics />
+        </div>
         
-        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
           <AHTAgentView />
         </div>
         
-        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
           <PerformanceMetrics />
         </div>
 
-        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
           <TeamCollaboration />
         </div>
         
-        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
           <HistoricalTrend />
         </div>
         
-        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
           <TeamDashboard />
         </div>
       </div>

@@ -31,14 +31,18 @@ export const DashboardControls = ({
   };
 
   return (
-    <>
+    <div className="space-y-4">
       <motion.div variants={itemVariants}>
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <AHTDateRangeSelector onDateRangeChange={onDateRangeChange} />
-          <div className="flex gap-4">
-            {canUploadData && <AHTExportButton />}
-            {canUploadData && <AHTDataUpload />}
+        <div className="flex flex-col gap-4">
+          <div className="w-full">
+            <AHTDateRangeSelector onDateRangeChange={onDateRangeChange} />
           </div>
+          {canUploadData && (
+            <div className="flex flex-wrap gap-2">
+              <AHTExportButton />
+              <AHTDataUpload />
+            </div>
+          )}
         </div>
       </motion.div>
       
@@ -48,6 +52,6 @@ export const DashboardControls = ({
           onFilterChange={onFilterChange}
         />
       </motion.div>
-    </>
+    </div>
   );
 };
