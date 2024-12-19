@@ -58,7 +58,7 @@ export const useAuthActions = () => {
 
   const register = async (email: string, password: string, role: UserRole = 'operations') => {
     try {
-      console.log("Starting registration process for email:", email);
+      console.log("Starting registration process for email:", email, "with role:", role);
       
       // Check if user already exists
       const { data: existingUser, error: checkError } = await supabase
@@ -76,13 +76,13 @@ export const useAuthActions = () => {
         return;
       }
 
-      // Attempt to sign up the user
+      // Attempt to sign up the user with role in metadata
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            role: role
+            role: role // Store role in user metadata
           }
         }
       });
@@ -100,32 +100,22 @@ export const useAuthActions = () => {
         throw new Error("User creation failed - no user data returned");
       }
 
-      console.log("User created successfully, checking for existing profile...");
+      console.log("User created successfully, creating profile with role:", role);
 
-      // Check if profile already exists
-      const { data: existingProfile } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', data.user.id)
-        .maybeSingle();
+      // Create the user profile with the specified role
+      const { error: profileError } = await supabase.rpc('create_new_user', {
+        user_id: data.user.id,
+        user_email: email,
+        user_role: role // Explicitly pass the role here
+      });
 
-      // Only create profile if it doesn't exist
-      if (!existingProfile) {
-        console.log("Creating new user profile...");
-        const { error: profileError } = await supabase.rpc('create_new_user', {
-          user_id: data.user.id,
-          user_email: email,
-          user_role: role
-        });
-
-        if (profileError) {
-          console.error("Error creating user profile:", profileError);
-          toast.error("Account created but profile setup failed. Please contact support.");
-          return;
-        }
+      if (profileError) {
+        console.error("Error creating user profile:", profileError);
+        toast.error("Account created but profile setup failed. Please contact support.");
+        return;
       }
 
-      console.log("Registration completed successfully");
+      console.log("Registration completed successfully with role:", role);
       toast.success("Registration successful! Please check your email for confirmation.");
     } catch (error: any) {
       console.error("Registration error:", error);
