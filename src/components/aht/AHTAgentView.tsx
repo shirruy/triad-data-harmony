@@ -9,7 +9,7 @@ interface AHTAgentViewProps {
 }
 
 export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
-  const { data: agentData } = useQuery({
+  const { data: agentData, isLoading } = useQuery({
     queryKey: ['agent-aht', startDate, endDate],
     queryFn: async () => {
       let query = supabase
@@ -28,6 +28,10 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
       return data;
     }
   });
+
+  if (isLoading) {
+    return <div className="text-center p-4">Loading...</div>;
+  }
 
   return (
     <Card>
