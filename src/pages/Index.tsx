@@ -8,12 +8,12 @@ import { AHTDataUpload } from "@/components/AHTDataUpload";
 
 const Index = () => {
   const { userData } = useAuth();
-  const canEdit = userData?.role === 'administrator' || userData?.role === 'analyst';
+  const canUploadData = userData?.role === 'administrator' || userData?.role === 'analyst';
 
   return (
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-gray-50">
       <div className="max-w-7xl mx-auto space-y-6">
-        <DashboardHeader canEdit={canEdit} />
+        <DashboardHeader canEdit={canUploadData} />
         
         {/* Last Updated Info */}
         <div className="bg-blue-600 text-white p-3 rounded-lg">
@@ -21,7 +21,7 @@ const Index = () => {
         </div>
 
         {/* Data Upload Section - Only visible to admin and analysts */}
-        {canEdit && <AHTDataUpload />}
+        {canUploadData && <AHTDataUpload />}
 
         {/* AHT Insight Card */}
         <AHTInsight />
