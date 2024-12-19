@@ -8,6 +8,14 @@ interface HistoricalTrendProps {
   endDate?: Date;
 }
 
+interface HistoricalData {
+  id: string;
+  date: string;
+  value: number;
+  metric_type: string;
+  created_at: string;
+}
+
 export const HistoricalTrend = ({ startDate, endDate }: HistoricalTrendProps) => {
   const { data: trendData, isLoading } = useQuery({
     queryKey: ['historical-trend', startDate, endDate],
@@ -25,7 +33,7 @@ export const HistoricalTrend = ({ startDate, endDate }: HistoricalTrendProps) =>
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data as HistoricalData[];
     }
   });
 
@@ -35,15 +43,16 @@ export const HistoricalTrend = ({ startDate, endDate }: HistoricalTrendProps) =>
 
   return (
     <Card>
-      <h2 className="text-lg font-semibold">Historical Trend</h2>
-      <div className="mt-4">
-        {/* Render your trend data here */}
-        {trendData?.map((item) => (
-          <div key={item.id} className="flex justify-between">
-            <span>{item.date}</span>
-            <span>{item.value}</span>
-          </div>
-        ))}
+      <div className="p-4">
+        <h2 className="text-lg font-semibold">Historical Trend</h2>
+        <div className="mt-4">
+          {trendData?.map((item) => (
+            <div key={item.id} className="flex justify-between">
+              <span>{format(new Date(item.date), 'MMM d, yyyy')}</span>
+              <span>{item.value}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </Card>
   );

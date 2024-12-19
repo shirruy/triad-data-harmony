@@ -8,6 +8,13 @@ interface PerformanceMetricsProps {
   endDate?: Date;
 }
 
+interface MetricData {
+  id: string;
+  name: string;
+  value: number;
+  created_at: string;
+}
+
 export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsProps) => {
   const { data: performanceData, isLoading } = useQuery({
     queryKey: ['performance-metrics', startDate, endDate],
@@ -25,7 +32,7 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data as MetricData[];
     }
   });
 

@@ -136,6 +136,30 @@ export type Database = {
           },
         ]
       }
+      historical_trend_data: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          metric_type: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          metric_type: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          metric_type?: string
+          value?: number
+        }
+        Relationships: []
+      }
       performance_alerts: {
         Row: {
           alert_type: string
@@ -250,6 +274,27 @@ export type Database = {
           },
         ]
       }
+      performance_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          value?: number
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assignee_id: string | null
@@ -332,6 +377,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      team_collaboration_data: {
+        Row: {
+          collaboration_score: number
+          created_at: string
+          id: string
+          team_name: string
+        }
+        Insert: {
+          collaboration_score: number
+          created_at?: string
+          id?: string
+          team_name: string
+        }
+        Update: {
+          collaboration_score?: number
+          created_at?: string
+          id?: string
+          team_name?: string
+        }
+        Relationships: []
       }
       team_members: {
         Row: {

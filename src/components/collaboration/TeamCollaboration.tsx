@@ -8,6 +8,13 @@ interface TeamCollaborationProps {
   endDate?: Date;
 }
 
+interface CollaborationData {
+  id: string;
+  team_name: string;
+  collaboration_score: number;
+  created_at: string;
+}
+
 export const TeamCollaboration = ({ startDate, endDate }: TeamCollaborationProps) => {
   const { data: collaborationData } = useQuery({
     queryKey: ['team-collaboration', startDate, endDate],
@@ -25,15 +32,15 @@ export const TeamCollaboration = ({ startDate, endDate }: TeamCollaborationProps
 
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      return data as CollaborationData[];
     }
   });
 
   return (
     <div>
       <Card>
-        <h2 className="text-lg font-semibold">Team Collaboration Overview</h2>
-        <div className="mt-4">
+        <h2 className="text-lg font-semibold p-4">Team Collaboration Overview</h2>
+        <div className="p-4">
           {collaborationData?.map((item) => (
             <div key={item.id} className="flex justify-between py-2">
               <span>{item.team_name}</span>
