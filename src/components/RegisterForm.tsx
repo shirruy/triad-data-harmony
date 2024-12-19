@@ -10,14 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserRole } from "@/lib/supabase";
+import { UserRole } from "@/lib/auth/types";
 import { useToast } from "./ui/use-toast";
-
-const ROLE_KEYS = {
-  administrator: "ADMIN_KEY_2024",
-  analyst: "ANALYST_KEY_2024",
-  operations: "OPS_KEY_2024"
-};
+import { validateRegistrationKey } from "@/lib/auth/validators";
+import { AUTH_ERRORS } from "@/lib/auth/constants";
 
 export const RegisterForm = () => {
   const [email, setEmail] = useState("");
@@ -30,12 +26,11 @@ export const RegisterForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Verify registration key
-    if (registrationKey !== ROLE_KEYS[role]) {
+    if (!validateRegistrationKey(role, registrationKey)) {
       toast({
         variant: "destructive",
         title: "Invalid Registration Key",
-        description: "The registration key you entered is incorrect for this role.",
+        description: AUTH_ERRORS.REGISTRATION_KEY_INVALID,
       });
       return;
     }

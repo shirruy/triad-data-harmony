@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { UserData, UserRole } from '@/lib/supabase';
-import { useAuthState } from '@/hooks/useAuthState';
-import { useAuthActions } from '@/hooks/useAuthActions';
+import { UserData, UserRole } from '@/lib/auth/types';
+import { useAuthState } from '@/hooks/auth/useAuthState';
+import { useAuthActions } from '@/hooks/auth/useAuthActions';
 
 interface AuthContextType {
   session: Session | null;
