@@ -1,9 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { DashboardHeader } from "@/components/DashboardHeader";
 import { AHTInsight } from "@/components/AHTInsight";
-import { AHTMetrics } from "@/components/AHTMetrics";
+import { AHTMetrics } from "@/components/aht/AHTMetrics";
 import { AHTCharts } from "@/components/AHTCharts";
-import { AHTDataUpload } from "@/components/AHTDataUpload";
+import { AHTDataUploadButton } from "@/components/aht/AHTDataUploadButton";
 import { motion } from "framer-motion";
 
 const Index = () => {
@@ -55,7 +55,7 @@ const Index = () => {
 
         {canUploadData && (
           <motion.div variants={itemVariants}>
-            <AHTDataUpload />
+            <AHTDataUploadButton />
           </motion.div>
         )}
 

@@ -5,9 +5,6 @@ import { UserRole } from '@/lib/auth/types';
 export const useAuthActions = () => {
   const signIn = async (email: string, password: string) => {
     try {
-      console.log("Attempting sign in with email:", email);
-      
-      // First, check if the user exists in auth system
       const { data: userExists, error: userCheckError } = await supabase
         .from('users')
         .select('email, role')
@@ -21,12 +18,9 @@ export const useAuthActions = () => {
       }
 
       if (!userExists) {
-        console.log("User not found:", email);
         toast.error("No account found with this email. Please register first.");
         return;
       }
-
-      console.log("User found, attempting login...");
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -34,20 +28,11 @@ export const useAuthActions = () => {
       });
 
       if (error) {
-        console.error("Sign in error:", error);
-        
-        if (error.message.includes("Invalid login credentials")) {
-          toast.error("Incorrect password. Please try again.");
-        } else if (error.message.includes("Email not confirmed")) {
-          toast.error("Please confirm your email address before signing in.");
-        } else {
-          toast.error("An error occurred during login. Please try again.");
-        }
+        handleAuthError(error);
         return;
       }
 
       if (data?.user) {
-        console.log("Sign in successful for user:", data.user.email);
         toast.success("Welcome back!");
       }
     } catch (error: any) {
@@ -58,41 +43,27 @@ export const useAuthActions = () => {
 
   const register = async (email: string, password: string, role: UserRole = 'operations') => {
     try {
-      console.log("Starting registration process for email:", email, "with role:", role);
-      
-      // Check if user already exists
-      const { data: existingUser, error: checkError } = await supabase
+      const { data: existingUser } = await supabase
         .from('users')
         .select('email')
         .eq('email', email)
         .maybeSingle();
-
-      if (checkError) {
-        throw new Error("Error checking existing user");
-      }
 
       if (existingUser) {
         toast.error("An account with this email already exists. Please sign in instead.");
         return;
       }
 
-      // Attempt to sign up the user with role in metadata
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: {
-            role: role // Store role in user metadata
-          }
+          data: { role }
         }
       });
 
       if (signUpError) {
-        if (signUpError.message.includes("weak_password")) {
-          toast.error("Password is too weak. Please use at least 6 characters.");
-        } else {
-          toast.error(signUpError.message || "Registration failed");
-        }
+        handleAuthError(signUpError);
         return;
       }
 
@@ -100,13 +71,10 @@ export const useAuthActions = () => {
         throw new Error("User creation failed - no user data returned");
       }
 
-      console.log("User created successfully, creating profile with role:", role);
-
-      // Create the user profile with the specified role
       const { error: profileError } = await supabase.rpc('create_new_user', {
         user_id: data.user.id,
         user_email: email,
-        user_role: role // Explicitly pass the role here
+        user_role: role
       });
 
       if (profileError) {
@@ -115,7 +83,6 @@ export const useAuthActions = () => {
         return;
       }
 
-      console.log("Registration completed successfully with role:", role);
       toast.success("Registration successful! Please check your email for confirmation.");
     } catch (error: any) {
       console.error("Registration error:", error);
@@ -126,10 +93,8 @@ export const useAuthActions = () => {
 
   const signOut = async () => {
     try {
-      console.log("Attempting sign out");
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      console.log("Sign out successful");
       toast.success("Successfully signed out");
     } catch (error: any) {
       console.error("Sign out error:", error);
@@ -143,4 +108,16 @@ export const useAuthActions = () => {
     signOut,
     register,
   };
+};
+
+const handleAuthError = (error: any) => {
+  if (error.message.includes("Invalid login credentials")) {
+    toast.error("Incorrect password. Please try again.");
+  } else if (error.message.includes("Email not confirmed")) {
+    toast.error("Please confirm your email address before signing in.");
+  } else if (error.message.includes("weak_password")) {
+    toast.error("Password is too weak. Please use at least 6 characters.");
+  } else {
+    toast.error(error.message || "An error occurred during authentication.");
+  }
 };
