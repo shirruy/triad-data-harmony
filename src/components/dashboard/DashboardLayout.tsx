@@ -4,18 +4,23 @@ import { AHTInsight } from "@/components/AHTInsight";
 import { AHTMetrics } from "@/components/aht/metrics/AHTMetrics";
 import { AHTCharts } from "@/components/aht/AHTCharts";
 import { AHTUploadButton } from "@/components/aht/AHTUploadButton";
+import { AHTDateRangeSelector } from "@/components/aht/AHTDateRangeSelector";
+import { AHTExportButton } from "@/components/aht/AHTExportButton";
+import { AHTSearchFilter } from "@/components/aht/AHTSearchFilter";
 import { useAuth } from "@/contexts/AuthContext";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { Toaster } from "sonner";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Breadcrumbs } from "@/components/dashboard/Breadcrumbs";
 
 export const DashboardLayout = () => {
   const { userData } = useAuth();
   const { toast } = useToast();
   const canUploadData = userData?.role === 'administrator' || userData?.role === 'analyst';
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {
     toast({
@@ -23,6 +28,15 @@ export const DashboardLayout = () => {
       description: "Your dashboard is up to date.",
     });
   }, []);
+
+  const handleDateRangeChange = (startDate: Date | undefined, endDate: Date | undefined) => {
+    if (startDate && endDate) {
+      toast({
+        title: "Date Range Selected",
+        description: "Data will be filtered accordingly.",
+      });
+    }
+  };
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -64,6 +78,23 @@ export const DashboardLayout = () => {
             
             <motion.div variants={itemVariants}>
               <DashboardHeader canEdit={canUploadData} />
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                <AHTDateRangeSelector onDateRangeChange={handleDateRangeChange} />
+                <div className="flex gap-4">
+                  {canUploadData && <AHTExportButton />}
+                  {canUploadData && <AHTUploadButton />}
+                </div>
+              </div>
+            </motion.div>
+            
+            <motion.div variants={itemVariants}>
+              <AHTSearchFilter 
+                onSearchChange={setSearchTerm}
+                onFilterChange={setFilterType}
+              />
             </motion.div>
             
             <motion.div 
@@ -112,10 +143,7 @@ export const DashboardLayout = () => {
               </div>
             </motion.div>
 
-            <motion.div 
-              variants={itemVariants}
-              className="animate-float"
-            >
+            <motion.div variants={itemVariants}>
               <AHTInsight />
             </motion.div>
 
