@@ -7,13 +7,14 @@ interface MetricsCardProps {
   value: string;
   icon: LucideIcon;
   color: "blue" | "green" | "red";
+  subtitle?: string;
 }
 
-export const AHTMetricsCard = ({ title, value, icon: Icon, color }: MetricsCardProps) => {
+export const AHTMetricsCard = ({ title, value, icon: Icon, color, subtitle }: MetricsCardProps) => {
   const colorClasses = {
-    blue: "bg-blue-600 text-white",
-    green: "bg-emerald-600 text-white",
-    red: "bg-rose-600 text-white"
+    blue: "from-blue-600/20 to-blue-700/20 text-blue-500",
+    green: "from-emerald-600/20 to-emerald-700/20 text-emerald-500",
+    red: "from-rose-600/20 to-rose-700/20 text-rose-500"
   };
 
   return (
@@ -22,13 +23,20 @@ export const AHTMetricsCard = ({ title, value, icon: Icon, color }: MetricsCardP
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className={`${colorClasses[color]} shadow-lg hover:scale-105 transition-transform duration-300`}>
+      <Card className={`bg-gradient-to-br ${colorClasses[color]} border-0 shadow-xl hover:scale-105 transition-transform duration-300`}>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-white/90">{title}</CardTitle>
-          <Icon className="h-5 w-5 text-white/70" />
+          <CardTitle className="text-sm font-medium text-muted-foreground">
+            {title}
+          </CardTitle>
+          <Icon className="h-5 w-5 opacity-70" />
         </CardHeader>
         <CardContent>
-          <div className="text-3xl font-bold">{value}</div>
+          <div className="mt-2">
+            <span className="text-4xl font-bold tracking-tight">{value}</span>
+            {subtitle && (
+              <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
+            )}
+          </div>
         </CardContent>
       </Card>
     </motion.div>
