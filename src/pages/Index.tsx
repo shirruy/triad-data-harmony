@@ -6,10 +6,18 @@ import { AHTMetrics } from "@/components/aht/metrics/AHTMetrics";
 const Index = () => {
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <AHTMetrics />
-        <HistoricalTrend />
-        <TeamDashboard />
+      <div className="space-y-8">
+        <div className="bg-card/40 backdrop-blur-sm rounded-lg p-6">
+          <AHTMetrics />
+        </div>
+        
+        <div className="bg-card/40 backdrop-blur-sm rounded-lg p-6">
+          <HistoricalTrend />
+        </div>
+        
+        <div className="bg-card/40 backdrop-blur-sm rounded-lg p-6">
+          <TeamDashboard />
+        </div>
       </div>
     </DashboardLayout>
   );

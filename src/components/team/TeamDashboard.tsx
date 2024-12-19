@@ -32,29 +32,31 @@ export const TeamDashboard = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {alerts && alerts.length > 0 && (
         <motion.div 
-          className="space-y-2"
+          className="space-y-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-lg font-semibold mb-2">Active Alerts</h2>
-          {alerts.map((alert) => (
-            <PerformanceAlert
-              key={alert.id}
-              type={alert.alert_type}
-              message={alert.message}
-              threshold={alert.threshold}
-            />
-          ))}
+          <h2 className="text-xl font-semibold text-primary-foreground">Active Alerts</h2>
+          <div className="space-y-3">
+            {alerts.map((alert) => (
+              <PerformanceAlert
+                key={alert.id}
+                type={alert.alert_type}
+                message={alert.message}
+                threshold={alert.threshold}
+              />
+            ))}
+          </div>
         </motion.div>
       )}
 
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Team Members</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold text-primary-foreground">Team Members</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {teamMembers?.map((member) => (
             <TeamMemberCard
               key={member.id}

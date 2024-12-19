@@ -43,12 +43,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <AppSidebar />
         <div className="flex-1 overflow-auto">
           <motion.div 
-            className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6"
+            className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 space-y-8"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <motion.div variants={containerVariants}>
+            <motion.div variants={containerVariants} className="bg-card/50 backdrop-blur-sm rounded-lg p-4">
               <Breadcrumbs />
             </motion.div>
             
@@ -56,25 +56,27 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <DashboardHeader canEdit={canUploadData} />
             </motion.div>
 
-            <DashboardControls 
-              canUploadData={canUploadData}
-              onDateRangeChange={(startDate, endDate) => {
-                if (startDate && endDate) {
-                  toast({
-                    title: "Date Range Selected",
-                    description: "Data will be filtered accordingly.",
-                  });
-                }
-              }}
-              onSearchChange={(value) => {}}
-              onFilterChange={(value) => {}}
-            />
-            
-            <QuickActions canUploadData={canUploadData} />
-            
-            <DashboardMetrics />
-
-            {children}
+            <motion.div variants={containerVariants} className="bg-card/30 backdrop-blur-sm rounded-lg p-6 space-y-6">
+              <DashboardControls 
+                canUploadData={canUploadData}
+                onDateRangeChange={(startDate, endDate) => {
+                  if (startDate && endDate) {
+                    toast({
+                      title: "Date Range Selected",
+                      description: "Data will be filtered accordingly.",
+                    });
+                  }
+                }}
+                onSearchChange={(value) => {}}
+                onFilterChange={(value) => {}}
+              />
+              
+              <QuickActions canUploadData={canUploadData} />
+              
+              <div className="space-y-8">
+                {children}
+              </div>
+            </motion.div>
           </motion.div>
         </div>
         <Toaster position="top-right" />
