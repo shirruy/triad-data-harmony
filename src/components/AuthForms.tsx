@@ -6,13 +6,15 @@ import { RegisterForm } from "@/components/RegisterForm";
 export const AuthForms = () => {
   const [isLogin, setIsLogin] = useState(true);
 
+  const toggleForm = () => setIsLogin(!isLogin);
+
   return (
     <div className="space-y-4 w-full max-w-md mx-auto p-4">
       {isLogin ? <LoginForm /> : <RegisterForm />}
       <Button 
         variant="outline" 
         className="w-full"
-        onClick={() => setIsLogin(!isLogin)}
+        onClick={toggleForm}
       >
         {isLogin ? "Need an account? Register" : "Already have an account? Login"}
       </Button>
