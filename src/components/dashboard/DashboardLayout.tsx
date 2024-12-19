@@ -40,14 +40,16 @@ export const DashboardLayout = () => {
       y: 0,
       opacity: 1,
       transition: {
-        duration: 0.5
+        type: "spring",
+        stiffness: 100,
+        damping: 15
       }
     }
   };
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-slate-50 flex w-full">
+      <div className="min-h-screen bg-background flex w-full">
         <AppSidebar />
         <div className="flex-1 overflow-auto">
           <motion.div 
@@ -56,7 +58,9 @@ export const DashboardLayout = () => {
             initial="hidden"
             animate="visible"
           >
-            <Breadcrumbs />
+            <motion.div variants={itemVariants}>
+              <Breadcrumbs />
+            </motion.div>
             
             <motion.div variants={itemVariants}>
               <DashboardHeader canEdit={canUploadData} />
@@ -64,39 +68,54 @@ export const DashboardLayout = () => {
             
             <motion.div 
               variants={itemVariants}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-lg shadow-md space-y-3"
+              className="gradient-border animate-glow"
             >
-              <h2 className="text-xl font-semibold">Quick Actions</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {canUploadData && (
-                  <motion.div variants={itemVariants}>
-                    <AHTDataUploadButton />
-                  </motion.div>
-                )}
-                <button 
-                  className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-left"
-                  onClick={() => toast({
-                    title: "Coming Soon",
-                    description: "This feature will be available soon!"
-                  })}
-                >
-                  <p className="font-medium">Generate Report</p>
-                  <p className="text-sm text-white/70">Create custom reports</p>
-                </button>
-                <button 
-                  className="bg-white/10 hover:bg-white/20 transition-colors p-4 rounded-lg text-left"
-                  onClick={() => toast({
-                    title: "Coming Soon",
-                    description: "This feature will be available soon!"
-                  })}
-                >
-                  <p className="font-medium">Team Overview</p>
-                  <p className="text-sm text-white/70">View team performance</p>
-                </button>
+              <div className="bg-card p-6 rounded-lg space-y-3">
+                <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+                  Quick Actions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {canUploadData && (
+                    <motion.div 
+                      variants={itemVariants}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <AHTDataUploadButton />
+                    </motion.div>
+                  )}
+                  <motion.button 
+                    className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-4 rounded-lg text-left backdrop-blur-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => toast({
+                      title: "Coming Soon",
+                      description: "This feature will be available soon!"
+                    })}
+                  >
+                    <p className="font-medium text-primary">Generate Report</p>
+                    <p className="text-sm text-muted-foreground">Create custom reports</p>
+                  </motion.button>
+                  <motion.button 
+                    className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-4 rounded-lg text-left backdrop-blur-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => toast({
+                      title: "Coming Soon",
+                      description: "This feature will be available soon!"
+                    })}
+                  >
+                    <p className="font-medium text-primary">Team Overview</p>
+                    <p className="text-sm text-muted-foreground">View team performance</p>
+                  </motion.button>
+                </div>
               </div>
             </motion.div>
 
-            <motion.div variants={itemVariants}>
+            <motion.div 
+              variants={itemVariants}
+              className="animate-float"
+            >
               <AHTInsight />
             </motion.div>
 

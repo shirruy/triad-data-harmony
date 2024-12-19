@@ -25,6 +25,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { motion } from "framer-motion";
 
 const getMenuItems = (role: string) => {
   const items = [
@@ -81,32 +82,46 @@ export function AppSidebar() {
 
   return (
     <>
-      <Sidebar className="border-r border-slate-200">
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200">
-          <h1 className="text-xl font-bold text-slate-900">WFM Analytics</h1>
+      <Sidebar className="border-r border-border bg-sidebar">
+        <motion.div 
+          className="h-16 flex items-center justify-between px-4 border-b border-border"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="text-xl font-bold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
+            WFM Analytics
+          </h1>
           <SidebarTrigger>
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
           </SidebarTrigger>
-        </div>
+        </motion.div>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+            <SidebarGroupLabel className="text-muted-foreground">Navigation</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <SidebarMenuButton>
-                          <item.icon className="h-5 w-5" />
-                          <span>{item.title}</span>
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      <TooltipContent side="right">
-                        {item.tooltip}
-                      </TooltipContent>
-                    </Tooltip>
-                  </SidebarMenuItem>
+                {items.map((item, index) => (
+                  <motion.div
+                    key={item.title}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                  >
+                    <SidebarMenuItem>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <SidebarMenuButton className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-secondary/50 transition-colors group">
+                            <item.icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                            <span className="text-muted-foreground group-hover:text-primary transition-colors">{item.title}</span>
+                          </SidebarMenuButton>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="bg-popover text-popover-foreground">
+                          {item.tooltip}
+                        </TooltipContent>
+                      </Tooltip>
+                    </SidebarMenuItem>
+                  </motion.div>
                 ))}
               </SidebarMenu>
             </SidebarGroupContent>
@@ -116,25 +131,35 @@ export function AppSidebar() {
 
       {/* Visible toggle button when sidebar is collapsed */}
       {!isMobile && state === "collapsed" && (
-        <div className="fixed top-4 left-0 z-50">
+        <motion.div 
+          className="fixed top-4 left-0 z-50"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           <SidebarTrigger>
-            <button className="flex items-center gap-2 bg-white border border-slate-200 shadow-sm rounded-r-lg px-3 py-2 text-slate-600 hover:bg-slate-50 transition-colors">
+            <button className="flex items-center gap-2 bg-card border border-border shadow-lg rounded-r-lg px-3 py-2 text-primary hover:bg-secondary/50 transition-all duration-300 hover:shadow-purple-500/20">
               <Menu className="h-5 w-5" />
               <span className="text-sm font-medium">Menu</span>
             </button>
           </SidebarTrigger>
-        </div>
+        </motion.div>
       )}
 
       {/* Mobile trigger */}
       {isMobile && (
-        <div className="fixed bottom-4 right-4 z-50">
+        <motion.div 
+          className="fixed bottom-4 right-4 z-50"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        >
           <SidebarTrigger>
-            <button className="p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition-colors">
+            <button className="p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:bg-primary/90 transition-colors animate-glow">
               <ChevronRight className="h-6 w-6" />
             </button>
           </SidebarTrigger>
-        </div>
+        </motion.div>
       )}
     </>
   );
