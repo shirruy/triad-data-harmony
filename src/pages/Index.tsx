@@ -9,18 +9,6 @@ import { AHTDateRangeSelector } from "@/components/aht/AHTDateRangeSelector";
 import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// Create a client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: true,
-      retry: 1,
-    },
-  },
-});
 
 const Index = () => {
   const [startDate, setStartDate] = useState<Date>();
@@ -30,46 +18,42 @@ const Index = () => {
     setStartDate(start);
     setEndDate(end);
     if (start && end) {
-      // Invalidate all queries when date range changes
-      queryClient.invalidateQueries();
       toast.success(`Data filtered from ${format(start, 'MMM d, yyyy')} to ${format(end, 'MMM d, yyyy')}`);
     }
   };
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <DashboardLayout>
-        <div className="space-y-4 sm:space-y-8">
-          <div className="mb-6">
-            <AHTDateRangeSelector onDateRangeChange={handleDateRangeChange} />
-          </div>
-
-          <div className="p-2 sm:p-8">
-            <AHTMetrics startDate={startDate} endDate={endDate} />
-          </div>
-          
-          <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
-            <AHTAgentView startDate={startDate} endDate={endDate} />
-          </div>
-          
-          <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
-            <PerformanceMetrics startDate={startDate} endDate={endDate} />
-          </div>
-
-          <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
-            <TeamCollaboration startDate={startDate} endDate={endDate} />
-          </div>
-          
-          <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
-            <HistoricalTrend startDate={startDate} endDate={endDate} />
-          </div>
-          
-          <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
-            <TeamDashboard startDate={startDate} endDate={endDate} />
-          </div>
+    <DashboardLayout>
+      <div className="space-y-4 sm:space-y-8">
+        <div className="mb-6">
+          <AHTDateRangeSelector onDateRangeChange={handleDateRangeChange} />
         </div>
-      </DashboardLayout>
-    </QueryClientProvider>
+
+        <div className="p-2 sm:p-8">
+          <AHTMetrics startDate={startDate} endDate={endDate} />
+        </div>
+        
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
+          <AHTAgentView startDate={startDate} endDate={endDate} />
+        </div>
+        
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
+          <PerformanceMetrics startDate={startDate} endDate={endDate} />
+        </div>
+
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
+          <TeamCollaboration startDate={startDate} endDate={endDate} />
+        </div>
+        
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
+          <HistoricalTrend startDate={startDate} endDate={endDate} />
+        </div>
+        
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4 sm:p-8">
+          <TeamDashboard startDate={startDate} endDate={endDate} />
+        </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

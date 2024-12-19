@@ -9,23 +9,30 @@ import { useEffect } from "react";
 import { Breadcrumbs } from "@/components/dashboard/Breadcrumbs";
 import { QuickActions } from "./QuickActions";
 import { DashboardControls } from "./DashboardControls";
-import { DashboardMetrics } from "./DashboardMetrics";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const { userData } = useAuth();
+  const { userData, loading } = useAuth();
   const { toast } = useToast();
   const canUploadData = userData?.role === 'administrator' || userData?.role === 'analyst';
 
   useEffect(() => {
-    toast({
-      title: `Welcome back, ${userData?.role}!`,
-      description: "Your dashboard is up to date.",
-    });
-  }, []);
+    if (userData) {
+      toast({
+        title: `Welcome back, ${userData?.role}!`,
+        description: "Your dashboard is up to date.",
+      });
+    }
+  }, [userData]);
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+    </div>;
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },
