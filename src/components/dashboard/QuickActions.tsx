@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { AHTDataUpload } from "@/components/AHTDataUpload";
 import { useToast } from "@/hooks/use-toast";
 
 interface QuickActionsProps {
@@ -31,16 +30,7 @@ export const QuickActions = ({ canUploadData }: QuickActionsProps) => {
         <h2 className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">
           Quick Actions
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {canUploadData && (
-            <motion.div 
-              variants={itemVariants}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <AHTDataUpload />
-            </motion.div>
-          )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <motion.button 
             className="bg-secondary/50 hover:bg-secondary/70 transition-colors p-4 rounded-lg text-left backdrop-blur-sm"
             whileHover={{ scale: 1.02 }}
