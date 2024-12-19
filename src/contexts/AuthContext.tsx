@@ -27,6 +27,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchUserData(session.user.id);
+      } else {
+        setLoading(false); // Set loading to false when there's no session
       }
     });
 
@@ -37,6 +39,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchUserData(session.user.id);
+      } else {
+        setUserData(null);
+        setLoading(false); // Set loading to false when auth state changes to signed out
       }
     });
 
@@ -44,19 +49,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const fetchUserData = async (userId: string) => {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-    if (error) {
+      if (error) throw error;
+
+      setUserData(data);
+    } catch (error) {
       console.error('Error fetching user data:', error);
-      return;
+    } finally {
+      setLoading(false); // Set loading to false after fetching user data (success or error)
     }
-
-    setUserData(data);
-    setLoading(false);
   };
 
   const signIn = async (email: string, password: string) => {
