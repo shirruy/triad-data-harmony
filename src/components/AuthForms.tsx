@@ -9,11 +9,16 @@ export const AuthForms = () => {
   const toggleForm = () => setIsLogin(!isLogin);
 
   return (
-    <div className="space-y-4 w-full max-w-md mx-auto p-4">
-      {isLogin ? <LoginForm /> : <RegisterForm />}
+    <div className="space-y-4 w-full max-w-md mx-auto p-4 animate-fade-in">
+      <div className={`transform transition-all duration-500 ${isLogin ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 absolute'}`}>
+        {isLogin && <LoginForm />}
+      </div>
+      <div className={`transform transition-all duration-500 ${!isLogin ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 absolute'}`}>
+        {!isLogin && <RegisterForm />}
+      </div>
       <Button 
         variant="outline" 
-        className="w-full"
+        className="w-full transform hover:scale-105 transition-all duration-300 animate-fade-in"
         onClick={toggleForm}
       >
         {isLogin ? "Need an account? Register" : "Already have an account? Login"}

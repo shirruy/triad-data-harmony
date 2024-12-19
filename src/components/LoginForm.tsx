@@ -16,13 +16,14 @@ export const LoginForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Login</CardTitle>
+    <Card className="w-full max-w-md mx-auto transform transition-all duration-500 hover:shadow-xl">
+      <CardHeader className="space-y-2 animate-fade-in">
+        <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
+        <p className="text-muted-foreground text-center text-sm">Enter your credentials to continue</p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in" style={{ animationDelay: '100ms' }}>
             <label htmlFor="email" className="text-sm font-medium">
               Email
             </label>
@@ -32,9 +33,10 @@ export const LoginForm = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg"
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in" style={{ animationDelay: '200ms' }}>
             <label htmlFor="password" className="text-sm font-medium">
               Password
             </label>
@@ -44,9 +46,14 @@ export const LoginForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg"
             />
           </div>
-          <Button type="submit" className="w-full">
+          <Button 
+            type="submit" 
+            className="w-full animate-fade-in transform hover:scale-105 transition-all duration-300"
+            style={{ animationDelay: '300ms' }}
+          >
             Sign In
           </Button>
         </form>

@@ -39,13 +39,14 @@ export const RegisterForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle>Register</CardTitle>
+    <Card className="w-full max-w-md mx-auto transform transition-all duration-500 hover:shadow-xl">
+      <CardHeader className="space-y-2 animate-fade-in">
+        <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
+        <p className="text-muted-foreground text-center text-sm">Join us today</p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in" style={{ animationDelay: '100ms' }}>
             <label htmlFor="email" className="text-sm font-medium">
               Email
             </label>
@@ -55,9 +56,10 @@ export const RegisterForm = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg"
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in" style={{ animationDelay: '200ms' }}>
             <label htmlFor="password" className="text-sm font-medium">
               Password
             </label>
@@ -67,14 +69,15 @@ export const RegisterForm = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg"
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in" style={{ animationDelay: '300ms' }}>
             <label htmlFor="role" className="text-sm font-medium">
               Role
             </label>
             <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
-              <SelectTrigger>
+              <SelectTrigger className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg">
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
@@ -84,7 +87,7 @@ export const RegisterForm = () => {
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 animate-fade-in" style={{ animationDelay: '400ms' }}>
             <label htmlFor="registrationKey" className="text-sm font-medium">
               Registration Key
             </label>
@@ -95,9 +98,14 @@ export const RegisterForm = () => {
               onChange={(e) => setRegistrationKey(e.target.value)}
               required
               placeholder="Enter the registration key for your role"
+              className="transform transition-all duration-300 hover:shadow-md focus:shadow-lg"
             />
           </div>
-          <Button type="submit" className="w-full">
+          <Button 
+            type="submit" 
+            className="w-full animate-fade-in transform hover:scale-105 transition-all duration-300"
+            style={{ animationDelay: '500ms' }}
+          >
             Register
           </Button>
         </form>
