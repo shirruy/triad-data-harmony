@@ -9,6 +9,7 @@ interface AuthContextType {
   userData: UserData | null;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  register: (email: string, password: string, role?: UserRole) => Promise<void>;
   loading: boolean;
 }
 
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (session?.user) {
         fetchUserData(session.user.id);
       } else {
-        setLoading(false); // Set loading to false when there's no session
+        setLoading(false);
       }
     });
 
@@ -41,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         fetchUserData(session.user.id);
       } else {
         setUserData(null);
-        setLoading(false); // Set loading to false when auth state changes to signed out
+        setLoading(false);
       }
     });
 
@@ -62,7 +63,43 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Error fetching user data:', error);
     } finally {
-      setLoading(false); // Set loading to false after fetching user data (success or error)
+      setLoading(false);
+    }
+  };
+
+  const register = async (email: string, password: string, role: UserRole = 'operations') => {
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      });
+
+      if (authError) throw authError;
+
+      if (authData.user) {
+        const { error: userError } = await supabase
+          .from('users')
+          .insert([
+            {
+              id: authData.user.id,
+              email: authData.user.email,
+              role: role,
+            },
+          ]);
+
+        if (userError) throw userError;
+      }
+
+      toast({
+        title: "Success",
+        description: "Registration successful. Please check your email for verification.",
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     }
   };
 
@@ -112,6 +149,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         userData,
         signIn,
         signOut,
+        register,
         loading,
       }}
     >
