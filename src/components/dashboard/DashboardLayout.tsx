@@ -1,9 +1,9 @@
 import { motion } from "framer-motion";
-import { DashboardHeader } from "./DashboardHeader";
-import { AHTInsight } from "../aht/AHTInsight";
-import { AHTMetrics } from "../aht/AHTMetrics";
-import { AHTCharts } from "../aht/AHTCharts";
-import { AHTDataUploadButton } from "../aht/AHTDataUploadButton";
+import { DashboardHeader } from "@/components/DashboardHeader";
+import { AHTInsight } from "@/components/AHTInsight";
+import { AHTMetrics } from "@/components/AHTMetrics";
+import { AHTCharts } from "@/components/AHTCharts";
+import { AHTDataUploadButton } from "@/components/aht/AHTDataUploadButton";
 import { useAuth } from "@/contexts/AuthContext";
 
 export const DashboardLayout = () => {
