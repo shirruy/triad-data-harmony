@@ -100,19 +100,29 @@ export const useAuthActions = () => {
         throw new Error("User creation failed - no user data returned");
       }
 
-      console.log("User created successfully, creating profile...");
+      console.log("User created successfully, checking for existing profile...");
 
-      // Create the user profile
-      const { error: profileError } = await supabase.rpc('create_new_user', {
-        user_id: data.user.id,
-        user_email: email,
-        user_role: role
-      });
+      // Check if profile already exists
+      const { data: existingProfile } = await supabase
+        .from('users')
+        .select('id')
+        .eq('id', data.user.id)
+        .maybeSingle();
 
-      if (profileError) {
-        console.error("Error creating user profile:", profileError);
-        toast.error("Account created but profile setup failed. Please contact support.");
-        return;
+      // Only create profile if it doesn't exist
+      if (!existingProfile) {
+        console.log("Creating new user profile...");
+        const { error: profileError } = await supabase.rpc('create_new_user', {
+          user_id: data.user.id,
+          user_email: email,
+          user_role: role
+        });
+
+        if (profileError) {
+          console.error("Error creating user profile:", profileError);
+          toast.error("Account created but profile setup failed. Please contact support.");
+          return;
+        }
       }
 
       console.log("Registration completed successfully");
