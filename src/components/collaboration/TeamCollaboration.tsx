@@ -21,8 +21,7 @@ export const TeamCollaboration = ({ startDate, endDate }: TeamCollaborationProps
     queryFn: async () => {
       let query = supabase
         .from('team_collaboration_data')
-        .select('*')
-        .order('collaboration_score', { ascending: false });
+        .select('*');
 
       if (startDate && endDate) {
         query = query
@@ -32,23 +31,44 @@ export const TeamCollaboration = ({ startDate, endDate }: TeamCollaborationProps
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as CollaborationData[];
+
+      // Aggregate collaboration scores by team
+      const teamMap = new Map();
+      data.forEach((record: CollaborationData) => {
+        if (!teamMap.has(record.team_name)) {
+          teamMap.set(record.team_name, {
+            total: 0,
+            count: 0
+          });
+        }
+        const current = teamMap.get(record.team_name);
+        current.total += record.collaboration_score;
+        current.count += 1;
+      });
+
+      // Calculate averages and convert to array
+      const aggregatedData = Array.from(teamMap.entries()).map(([team_name, stats]) => ({
+        team_name,
+        collaboration_score: Math.round(stats.total / stats.count)
+      }));
+
+      return aggregatedData.sort((a, b) => b.collaboration_score - a.collaboration_score);
     }
   });
 
   return (
-    <div>
-      <Card>
-        <h2 className="text-lg font-semibold p-4">Team Collaboration Overview</h2>
-        <div className="p-4">
+    <Card>
+      <div className="p-4">
+        <h2 className="text-lg font-semibold">Team Collaboration Overview</h2>
+        <div className="mt-4">
           {collaborationData?.map((item) => (
-            <div key={item.id} className="flex justify-between py-2">
+            <div key={item.team_name} className="flex justify-between py-2 border-b last:border-0">
               <span>{item.team_name}</span>
-              <span>{item.collaboration_score}</span>
+              <span className="font-medium">{item.collaboration_score}</span>
             </div>
           ))}
         </div>
-      </Card>
-    </div>
+      </div>
+    </Card>
   );
 };

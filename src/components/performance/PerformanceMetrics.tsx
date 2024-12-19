@@ -14,7 +14,7 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
     queryFn: async () => {
       let query = supabase
         .from('performance_metrics')
-        .select('*');
+        .select('name, value, created_at');
 
       if (startDate && endDate) {
         query = query
@@ -26,26 +26,29 @@ export const PerformanceMetrics = ({ startDate, endDate }: PerformanceMetricsPro
       if (error) throw error;
 
       // Create a map to store aggregated values
-      const metricsMap = new Map<string, { total: number, count: number }>();
+      const metricsMap = new Map();
 
       // Sum up all values and count records for each metric
       data.forEach(record => {
-        const current = metricsMap.get(record.name) || { total: 0, count: 0 };
-        metricsMap.set(record.name, {
-          total: current.total + record.value,
-          count: current.count + 1
-        });
+        if (!metricsMap.has(record.name)) {
+          metricsMap.set(record.name, {
+            total: 0,
+            count: 0
+          });
+        }
+        const current = metricsMap.get(record.name);
+        current.total += record.value;
+        current.count += 1;
       });
 
       // Convert map to array and calculate averages
       const aggregatedData = Array.from(metricsMap.entries()).map(([name, stats]) => ({
         name,
-        value: Math.round(stats.total / stats.count) // Calculate average
+        value: Math.round(stats.total / stats.count)
       }));
 
       return aggregatedData.sort((a, b) => b.value - a.value);
-    },
-    enabled: true
+    }
   });
 
   if (isLoading) {

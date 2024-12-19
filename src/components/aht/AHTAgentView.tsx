@@ -14,7 +14,11 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
     queryFn: async () => {
       let query = supabase
         .from('aht_agent_data')
-        .select('*');
+        .select(`
+          agent_name,
+          value,
+          created_at
+        `);
 
       if (startDate && endDate) {
         query = query
@@ -25,27 +29,28 @@ export const AHTAgentView = ({ startDate, endDate }: AHTAgentViewProps) => {
       const { data, error } = await query;
       if (error) throw error;
 
-      // Create a map to store aggregated values
-      const agentMap = new Map<string, { value: number, count: number }>();
-
-      // Sum up all values and count records for each agent
+      // Aggregate data by agent
+      const agentMap = new Map();
       data.forEach(record => {
-        const current = agentMap.get(record.agent_name) || { value: 0, count: 0 };
-        agentMap.set(record.agent_name, {
-          value: current.value + record.value,
-          count: current.count + 1
-        });
+        if (!agentMap.has(record.agent_name)) {
+          agentMap.set(record.agent_name, {
+            total: 0,
+            count: 0
+          });
+        }
+        const current = agentMap.get(record.agent_name);
+        current.total += record.value;
+        current.count += 1;
       });
 
-      // Convert map to array and calculate averages
+      // Calculate averages and convert to array
       const aggregatedData = Array.from(agentMap.entries()).map(([agent_name, stats]) => ({
         agent_name,
-        value: Math.round(stats.value / stats.count) // Calculate average
+        value: Math.round(stats.total / stats.count)
       }));
 
       return aggregatedData.sort((a, b) => b.value - a.value);
-    },
-    enabled: true
+    }
   });
 
   if (isLoading) {
