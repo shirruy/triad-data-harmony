@@ -26,12 +26,19 @@ export const useAuthState = () => {
             .from('users')
             .select('*')
             .eq('id', session.user.id)
-            .single();
+            .maybeSingle();
 
           if (!mounted) return;
 
           if (error) {
             console.error('Error fetching user data:', error);
+            setLoading(false);
+            return;
+          }
+
+          // If no data is found, handle it gracefully
+          if (!data) {
+            console.log('No user data found in database');
             setLoading(false);
             return;
           }
@@ -61,12 +68,19 @@ export const useAuthState = () => {
           .from('users')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (!mounted) return;
 
         if (error) {
           console.error('Error fetching user data:', error);
+          setLoading(false);
+          return;
+        }
+
+        // If no data is found, handle it gracefully
+        if (!data) {
+          console.log('No user data found in database');
           setLoading(false);
           return;
         }
