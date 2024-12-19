@@ -39,7 +39,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-background flex w-full">
+      <div className="min-h-screen bg-background/50 flex w-full">
         <AppSidebar />
         <div className="flex-1 overflow-auto">
           <motion.div 
@@ -50,7 +50,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           >
             <motion.div 
               variants={containerVariants} 
-              className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4"
+              className="bg-card/40 backdrop-blur-md rounded-lg border border-border/50 shadow-lg p-4"
             >
               <Breadcrumbs />
             </motion.div>
@@ -61,7 +61,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             <motion.div 
               variants={containerVariants} 
-              className="bg-card/20 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8 space-y-8"
+              className="bg-card/40 backdrop-blur-md rounded-lg border border-border/50 shadow-lg p-8 space-y-8"
             >
               <DashboardControls 
                 canUploadData={canUploadData}
