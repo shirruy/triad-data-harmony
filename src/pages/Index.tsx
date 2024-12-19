@@ -4,7 +4,6 @@ import { HistoricalTrend } from "@/components/aht/HistoricalTrend";
 import { AHTMetrics } from "@/components/aht/metrics/AHTMetrics";
 import { TeamCollaboration } from "@/components/collaboration/TeamCollaboration";
 import { PerformanceMetrics } from "@/components/performance/PerformanceMetrics";
-import { DataExport } from "@/components/export/DataExport";
 import { AHTAgentView } from "@/components/aht/AHTAgentView";
 
 const Index = () => {
@@ -31,10 +30,6 @@ const Index = () => {
         
         <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
           <TeamDashboard />
-        </div>
-
-        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
-          <DataExport />
         </div>
       </div>
     </DashboardLayout>
