@@ -8,6 +8,7 @@ interface MetricCardProps {
   icon: LucideIcon;
   color: "blue" | "green" | "red";
   subtitle?: string;
+  onClick?: () => void;  // Added onClick as an optional property
 }
 
 export const AHTMetricCard = ({ 
@@ -15,7 +16,8 @@ export const AHTMetricCard = ({
   value, 
   icon: Icon, 
   color, 
-  subtitle 
+  subtitle,
+  onClick 
 }: MetricCardProps) => {
   const colorClasses = {
     blue: "from-blue-600/20 via-purple-600/20 to-purple-800/20 text-blue-500",
@@ -30,8 +32,9 @@ export const AHTMetricCard = ({
       transition={{ duration: 0.5 }}
       whileHover={{ scale: 1.02 }}
       className="h-full"
+      onClick={onClick}
     >
-      <Card className={`bg-gradient-to-br ${colorClasses[color]} border-0 shadow-xl transition-all duration-300 h-full backdrop-blur-sm`}>
+      <Card className={`bg-gradient-to-br ${colorClasses[color]} border-0 shadow-xl transition-all duration-300 h-full backdrop-blur-sm cursor-pointer`}>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
             {title}
