@@ -7,7 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import { LoginForm } from "@/components/LoginForm";
 import { RegisterForm } from "@/components/RegisterForm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
     queries: {
       retry: 2,
       staleTime: 30000,
-      cacheTime: 3600000,
+      gcTime: 3600000,
       refetchOnWindowFocus: false,
     },
   },
@@ -54,13 +54,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, userData } = useAuth();
   const [timeoutError, setTimeoutError] = useState(false);
 
-  // Set a timeout for loading state
   useEffect(() => {
     const timer = setTimeout(() => {
       if (loading) {
         setTimeoutError(true);
       }
-    }, 10000); // Show error after 10 seconds of loading
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [loading]);
