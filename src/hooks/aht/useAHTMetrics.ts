@@ -2,49 +2,24 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
-interface MetricsData {
+interface Metrics {
   callsOffered: number;
   answeredCalls: number;
   abandonCalls: number;
 }
 
 export const useAHTMetrics = (startDate?: Date, endDate?: Date) => {
-  const [metrics, setMetrics] = useState<MetricsData>({
+  const [metrics, setMetrics] = useState<Metrics>({
     callsOffered: 0,
     answeredCalls: 0,
     abandonCalls: 0,
   });
 
-  useEffect(() => {
-    // Initial fetch
-    fetchMetrics();
-
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('schema-db-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'aht_metrics'
-        },
-        () => {
-          fetchMetrics();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [startDate, endDate]);
-
   const fetchMetrics = async () => {
     try {
       let query = supabase
         .from('aht_metrics')
-        .select('*')
+        .select('calls_offered, answered_calls, abandon_calls')
         .order('created_at', { ascending: false });
 
       if (startDate && endDate) {
@@ -53,24 +28,34 @@ export const useAHTMetrics = (startDate?: Date, endDate?: Date) => {
           .lte('created_at', format(endDate, 'yyyy-MM-dd'));
       }
 
-      const { data, error } = await query.maybeSingle();
+      const { data, error } = await query;
 
       if (error) {
-        console.error('Error fetching metrics:', error);
-        return;
+        throw error;
       }
 
-      if (data) {
-        setMetrics({
-          callsOffered: data.calls_offered,
-          answeredCalls: data.answered_calls,
-          abandonCalls: data.abandon_calls,
+      if (data && data.length > 0) {
+        // Sum up all metrics for the selected period
+        const totals = data.reduce((acc, curr) => ({
+          callsOffered: acc.callsOffered + curr.calls_offered,
+          answeredCalls: acc.answeredCalls + curr.answered_calls,
+          abandonCalls: acc.abandonCalls + curr.abandon_calls,
+        }), {
+          callsOffered: 0,
+          answeredCalls: 0,
+          abandonCalls: 0,
         });
+
+        setMetrics(totals);
       }
     } catch (error) {
-      console.error('Error in fetchMetrics:', error);
+      console.error('Error fetching metrics:', error);
     }
   };
+
+  useEffect(() => {
+    fetchMetrics();
+  }, [startDate, endDate]);
 
   return { metrics };
 };
