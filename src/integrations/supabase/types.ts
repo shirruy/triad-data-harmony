@@ -75,6 +75,35 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_alerts: {
         Row: {
           alert_type: string
@@ -113,6 +142,47 @@ export type Database = {
           },
         ]
       }
+      performance_goals: {
+        Row: {
+          created_at: string
+          current_value: number
+          end_date: string
+          id: string
+          metric_name: string
+          start_date: string
+          target_value: number
+          team_member_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_value?: number
+          end_date: string
+          id?: string
+          metric_name: string
+          start_date: string
+          target_value: number
+          team_member_id: string
+        }
+        Update: {
+          created_at?: string
+          current_value?: number
+          end_date?: string
+          id?: string
+          metric_name?: string
+          start_date?: string
+          target_value?: number
+          team_member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_goals_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       performance_logs: {
         Row: {
           created_at: string
@@ -144,6 +214,89 @@ export type Database = {
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "aht_team_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          assignee_id: string | null
+          assigner_id: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          status: string
+          title: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          assigner_id: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          status?: string
+          title: string
+        }
+        Update: {
+          assignee_id?: string | null
+          assigner_id?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_assigner_id_fkey"
+            columns: ["assigner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_availability: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          start_time: string
+          status: string
+          team_member_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          start_time: string
+          status?: string
+          team_member_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          start_time?: string
+          status?: string
+          team_member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_availability_team_member_id_fkey"
+            columns: ["team_member_id"]
+            isOneToOne: false
+            referencedRelation: "team_members"
             referencedColumns: ["id"]
           },
         ]
