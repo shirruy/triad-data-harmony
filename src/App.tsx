@@ -10,6 +10,7 @@ import { RegisterForm } from "@/components/RegisterForm";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -30,15 +31,30 @@ const AuthForms = () => {
   );
 };
 
+const LoadingSpinner = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center gap-2">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <p className="text-sm text-muted-foreground">Loading...</p>
+    </div>
+  </div>
+);
+
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading, userData } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
+  // If we're not loading and there's no user, show auth forms
   if (!user) {
     return <AuthForms />;
+  }
+
+  // If we have a user but no userData yet, show loading
+  if (!userData) {
+    return <LoadingSpinner />;
   }
 
   return <>{children}</>;
