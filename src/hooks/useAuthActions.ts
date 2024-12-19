@@ -7,20 +7,22 @@ export const useAuthActions = () => {
     try {
       console.log("Attempting sign in with email:", email);
       
-      // First, check if the user exists
-      const { data: userExists } = await supabase
+      // First, check if the user exists in auth system
+      const { data: userExists, error: userCheckError } = await supabase
         .from('users')
-        .select('email')
+        .select('email, role')
         .eq('email', email)
         .single();
 
-      if (!userExists) {
+      if (userCheckError || !userExists) {
         console.log("User not found:", email);
         toast.error("No account found with this email. Please register first.");
         return;
       }
 
-      // Attempt to sign in
+      console.log("User found, attempting login...");
+
+      // Attempt to sign in with credentials
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
