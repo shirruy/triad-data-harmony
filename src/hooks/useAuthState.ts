@@ -12,6 +12,7 @@ export const useAuthState = () => {
 
   useEffect(() => {
     let mounted = true;
+    let authSubscription: { unsubscribe: () => void } | null = null;
 
     const fetchUserData = async (userId: string) => {
       try {
@@ -39,22 +40,28 @@ export const useAuthState = () => {
             details: error.details,
             hint: error.hint
           });
-          toast.error('Error loading user data');
-          setLoading(false);
+          if (mounted) {
+            toast.error('Error loading user data');
+            setLoading(false);
+          }
           return;
         }
 
         if (!data) {
           console.log('No user data found in database for ID:', userId);
           console.log('Database response:', data);
-          toast.error('User data not found');
-          setLoading(false);
+          if (mounted) {
+            toast.error('User data not found');
+            setLoading(false);
+          }
           return;
         }
 
         console.log('User data fetched successfully:', data);
-        setUserData(data);
-        setLoading(false);
+        if (mounted) {
+          setUserData(data);
+          setLoading(false);
+        }
       } catch (error) {
         console.error('Unexpected error fetching user data:', error);
         if (mounted) {
@@ -87,7 +94,9 @@ export const useAuthState = () => {
           await fetchUserData(session.user.id);
         } else {
           console.log('No active session found during initialization');
-          setLoading(false);
+          if (mounted) {
+            setLoading(false);
+          }
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
@@ -101,29 +110,42 @@ export const useAuthState = () => {
 
     initializeAuth();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event);
-      console.log("Session details:", session?.user?.id);
+    // Set up auth state change subscription
+    const setupAuthSubscription = async () => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        console.log("Auth state changed:", event);
+        console.log("Session details:", session?.user?.id);
+        
+        if (!mounted) {
+          console.log('Component unmounted during auth state change');
+          return;
+        }
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchUserData(session.user.id);
+        } else {
+          if (mounted) {
+            setUserData(null);
+            setLoading(false);
+          }
+        }
+      });
       
-      if (!mounted) {
-        console.log('Component unmounted during auth state change');
-        return;
-      }
-      
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await fetchUserData(session.user.id);
-      } else {
-        setUserData(null);
-        setLoading(false);
-      }
-    });
+      authSubscription = subscription;
+    };
 
+    setupAuthSubscription();
+
+    // Cleanup function
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      if (authSubscription) {
+        console.log('Cleaning up auth subscription');
+        authSubscription.unsubscribe();
+      }
     };
   }, []);
 
