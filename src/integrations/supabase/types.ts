@@ -75,6 +75,117 @@ export type Database = {
         }
         Relationships: []
       }
+      performance_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          message: string
+          team_id: string | null
+          threshold: number
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          message: string
+          team_id?: string | null
+          threshold: number
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          team_id?: string | null
+          threshold?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_alerts_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "aht_team_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      performance_logs: {
+        Row: {
+          created_at: string
+          id: string
+          log_date: string | null
+          metric_type: string
+          team_id: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          log_date?: string | null
+          metric_type: string
+          team_id?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          log_date?: string | null
+          metric_type?: string
+          team_id?: string | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "performance_logs_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "aht_team_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          name: string
+          performance_score: number | null
+          role: string
+          team_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          performance_score?: number | null
+          role: string
+          team_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          performance_score?: number | null
+          role?: string
+          team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "aht_team_data"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           created_at: string
