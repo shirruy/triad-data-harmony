@@ -14,46 +14,35 @@ export const useAuthState = () => {
 
     const initializeAuth = async () => {
       try {
-        // Get initial session
         const { data: { session } } = await supabase.auth.getSession();
         
-        if (mounted) {
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (session?.user) {
-            await fetchUserData(session.user.id);
-          } else {
+        if (!mounted) return;
+        
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+
+          if (!mounted) return;
+
+          if (error) {
+            console.error('Error fetching user data:', error);
             setLoading(false);
+            return;
           }
+
+          setUserData(data);
         }
+        
+        setLoading(false);
       } catch (error) {
         console.error('Auth initialization error:', error);
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    const fetchUserData = async (userId: string) => {
-      try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', userId)
-          .single();
-
-        if (error) throw error;
-        
-        if (mounted) {
-          setUserData(data);
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        if (mounted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     };
 
@@ -62,17 +51,32 @@ export const useAuthState = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event);
       
-      if (mounted) {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          await fetchUserData(session.user.id);
-        } else {
-          setUserData(null);
+      if (!mounted) return;
+      
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        if (!mounted) return;
+
+        if (error) {
+          console.error('Error fetching user data:', error);
           setLoading(false);
+          return;
         }
+
+        setUserData(data);
+      } else {
+        setUserData(null);
       }
+      
+      setLoading(false);
     });
 
     return () => {

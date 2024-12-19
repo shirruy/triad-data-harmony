@@ -15,9 +15,16 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
         setTimeoutError(true);
         toast.error("Loading is taking longer than expected. Please refresh the page.");
       }
-    }, 5000);
+    }, 3000); // Reduced timeout to 3 seconds
 
     return () => clearTimeout(timer);
+  }, [loading]);
+
+  // Reset timeout error when loading changes
+  useEffect(() => {
+    if (!loading) {
+      setTimeoutError(false);
+    }
   }, [loading]);
 
   if (loading && !timeoutError) {
