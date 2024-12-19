@@ -10,14 +10,18 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const [timeoutError, setTimeoutError] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (loading) {
+    let timer: NodeJS.Timeout;
+    
+    if (loading) {
+      timer = setTimeout(() => {
         setTimeoutError(true);
         toast.error("Loading is taking longer than expected. Please refresh the page.");
-      }
-    }, 3000); // Reduced timeout to 3 seconds
+      }, 2000); // Reduced to 2 seconds for faster feedback
+    }
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [loading]);
 
   // Reset timeout error when loading changes
@@ -28,7 +32,11 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }, [loading]);
 
   if (loading && !timeoutError) {
-    return <LoadingSpinner />;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (timeoutError) {
@@ -44,12 +52,24 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
+  // If there's no user, show auth forms
   if (!user) {
     return <AuthForms />;
   }
 
+  // If there's no user data but we have a user, something went wrong with the database
   if (!userData) {
-    return <LoadingSpinner />;
+    toast.error("Unable to load user data. Please sign out and try again.");
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <p className="text-destructive">Error loading user data</p>
+          <Button onClick={() => window.location.reload()}>
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;
