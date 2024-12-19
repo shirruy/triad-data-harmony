@@ -34,6 +34,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const handleSignOut = async () => {
     try {
       await signOut();
+      window.location.reload(); // Force reload after sign out
       toast.success("Successfully signed out");
     } catch (error) {
       console.error("Sign out error:", error);
