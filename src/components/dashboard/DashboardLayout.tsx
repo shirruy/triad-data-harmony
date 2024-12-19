@@ -81,7 +81,7 @@ export const DashboardLayout = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <AHTDataUploadButton />
+                      <AHTUploadButton />
                     </motion.div>
                   )}
                   <motion.button 
