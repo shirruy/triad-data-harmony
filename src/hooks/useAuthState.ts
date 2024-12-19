@@ -10,22 +10,37 @@ export const useAuthState = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchUserData(session.user.id);
-      } else {
+    // Set a timeout to prevent infinite loading states
+    const loadingTimeout = setTimeout(() => {
+      setLoading(false);
+    }, 5000); // 5 second maximum loading time
+
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user) {
+          await fetchUserData(session.user.id);
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
         setLoading(false);
       }
-    });
+    };
+
+    initializeAuth();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      console.log("Auth state changed:", _event, session);
+      console.log("Auth state changed:", _event);
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user) {
         await fetchUserData(session.user.id);
       } else {
@@ -34,24 +49,22 @@ export const useAuthState = () => {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(loadingTimeout);
+    };
   }, []);
 
   const fetchUserData = async (userId: string) => {
     try {
-      console.log("Fetching user data for ID:", userId);
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching user data:', error);
-        throw error;
-      }
-
-      console.log("Fetched user data:", data);
+      if (error) throw error;
+      
       setUserData(data);
     } catch (error) {
       console.error('Error fetching user data:', error);

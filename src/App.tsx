@@ -12,7 +12,17 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
-const queryClient = new QueryClient();
+// Configure QueryClient with better defaults
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 30000,
+      cacheTime: 3600000,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const AuthForms = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -42,17 +52,38 @@ const LoadingSpinner = () => (
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, userData } = useAuth();
+  const [timeoutError, setTimeoutError] = useState(false);
+
+  // Set a timeout for loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (loading) {
+        setTimeoutError(true);
+      }
+    }, 10000); // Show error after 10 seconds of loading
+
+    return () => clearTimeout(timer);
+  }, [loading]);
 
   if (loading) {
-    return <LoadingSpinner />;
+    return timeoutError ? (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <p className="text-destructive">Loading is taking longer than expected.</p>
+          <Button onClick={() => window.location.reload()}>
+            Refresh Page
+          </Button>
+        </div>
+      </div>
+    ) : (
+      <LoadingSpinner />
+    );
   }
 
-  // If we're not loading and there's no user, show auth forms
   if (!user) {
     return <AuthForms />;
   }
 
-  // If we have a user but no userData yet, show loading
   if (!userData) {
     return <LoadingSpinner />;
   }
