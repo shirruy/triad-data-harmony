@@ -16,7 +16,7 @@ export const LoginForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto transform transition-all duration-500 hover:shadow-xl">
+    <Card className="w-full transform transition-all duration-500 hover:shadow-xl">
       <CardHeader className="space-y-2 animate-fade-in">
         <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
         <p className="text-muted-foreground text-center text-sm">Enter your credentials to continue</p>
