@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AHTBarChart } from "./charts/AHTBarChart";
 import { AHTPieChart } from "./charts/AHTPieChart";
+import { AHTSearchFilter } from "./AHTSearchFilter";
 
 interface WaveData {
   wave: string;
@@ -16,6 +17,8 @@ interface TeamData {
 export const AHTCharts = () => {
   const [waveData, setWaveData] = useState<WaveData[]>([]);
   const [teamData, setTeamData] = useState<TeamData[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
 
   useEffect(() => {
     fetchData();
@@ -92,21 +95,46 @@ export const AHTCharts = () => {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchTerm(value.toLowerCase());
+  };
+
+  const handleFilterChange = (value: string) => {
+    setFilterType(value);
+  };
+
+  const filteredWaveData = waveData.filter(item => 
+    (filterType === "all" || filterType === "wave") &&
+    item.wave.toLowerCase().includes(searchTerm)
+  );
+
+  const filteredTeamData = teamData.filter(item => 
+    (filterType === "all" || filterType === "team") &&
+    item.name.toLowerCase().includes(searchTerm)
+  );
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <AHTBarChart 
-        data={waveData}
-        title="AHT Per Wave"
-        layout="vertical"
+    <div className="space-y-4">
+      <AHTSearchFilter 
+        onSearchChange={handleSearch}
+        onFilterChange={handleFilterChange}
       />
-      <AHTBarChart 
-        data={teamData}
-        title="AHT per Team Lead"
-      />
-      <AHTPieChart 
-        data={teamData}
-        title="AHT per LOB"
-      />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <AHTBarChart 
+          data={filteredWaveData}
+          title="AHT Per Wave"
+          layout="vertical"
+        />
+        <AHTBarChart 
+          data={filteredTeamData}
+          title="AHT per Team Lead"
+        />
+        <AHTPieChart 
+          data={filteredTeamData}
+          title="AHT per LOB"
+        />
+      </div>
     </div>
   );
 };
