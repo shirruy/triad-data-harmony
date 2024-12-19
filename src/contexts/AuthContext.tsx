@@ -73,9 +73,45 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const signIn = async (email: string, password: string) => {
+    try {
+      console.log("Attempting sign in for:", email);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        console.error("Sign in error:", error);
+        if (error.message.includes("Invalid login credentials")) {
+          toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description: "Invalid email or password. Please try again.",
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error.message,
+          });
+        }
+        throw error;
+      }
+
+      if (data?.user) {
+        toast({
+          title: "Success",
+          description: "Successfully signed in",
+        });
+      }
+    } catch (error: any) {
+      throw error;
+    }
+  };
+
   const register = async (email: string, password: string, role: UserRole = 'operations') => {
     try {
-      // First, create the auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -89,7 +125,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       console.log("Auth user created:", authData.user);
 
-      // Insert the user data using RPC to bypass RLS
       const { error: userError } = await supabase.rpc('create_new_user', {
         user_id: authData.user.id,
         user_email: email,
@@ -107,30 +142,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
     } catch (error: any) {
       console.error("Registration error:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-      throw error;
-    }
-  };
-
-  const signIn = async (email: string, password: string) => {
-    try {
-      console.log("Attempting sign in for:", email);
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: "Successfully signed in",
-      });
-    } catch (error: any) {
-      console.error("Sign in error:", error);
       toast({
         variant: "destructive",
         title: "Error",
