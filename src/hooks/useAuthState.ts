@@ -11,6 +11,7 @@ export const useAuthState = () => {
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
   const initializationAttempted = useRef(false);
+  const authStateChangeHandled = useRef(false);
 
   const fetchUserData = async (userId: string) => {
     if (!mountedRef.current) return;
@@ -28,12 +29,14 @@ export const useAuthState = () => {
       if (error) {
         console.error('Error fetching user data:', error);
         toast.error('Error loading user data');
+        setLoading(false);
         return;
       }
 
       if (!data) {
         console.error('No user data found for ID:', userId);
         toast.error('User data not found');
+        setLoading(false);
         return;
       }
 
@@ -60,12 +63,14 @@ export const useAuthState = () => {
         
         if (!mountedRef.current) return;
 
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-
         if (initialSession?.user) {
+          setSession(initialSession);
+          setUser(initialSession.user);
           await fetchUserData(initialSession.user.id);
         } else {
+          setSession(null);
+          setUser(null);
+          setUserData(null);
           setLoading(false);
         }
       } catch (error) {
@@ -78,17 +83,27 @@ export const useAuthState = () => {
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current || authStateChangeHandled.current) return;
+      authStateChangeHandled.current = true;
 
       console.log('Auth state changed:', event);
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-
-      if (newSession?.user) {
-        await fetchUserData(newSession.user.id);
-      } else {
-        setUserData(null);
+      
+      try {
+        if (newSession?.user) {
+          setSession(newSession);
+          setUser(newSession.user);
+          await fetchUserData(newSession.user.id);
+        } else {
+          setSession(null);
+          setUser(null);
+          setUserData(null);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error handling auth state change:', error);
         setLoading(false);
+      } finally {
+        authStateChangeHandled.current = false;
       }
     });
 

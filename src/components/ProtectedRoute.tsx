@@ -7,11 +7,15 @@ import { useEffect } from "react";
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading, userData, signOut } = useAuth();
-  const timeoutError = useLoadingTimeout(loading, 10000); // Increased timeout to 10 seconds
+  const timeoutError = useLoadingTimeout(loading, 15000); // Increased timeout to 15 seconds
 
   useEffect(() => {
     if (!loading) {
-      console.log("Auth state loaded:", { user: !!user, userData: !!userData });
+      console.log("Auth state loaded:", { 
+        user: !!user, 
+        userData: !!userData,
+        timestamp: new Date().toISOString()
+      });
     }
   }, [loading, user, userData]);
 
