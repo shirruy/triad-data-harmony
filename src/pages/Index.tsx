@@ -7,15 +7,15 @@ const Index = () => {
   return (
     <DashboardLayout>
       <div className="space-y-8">
-        <div className="bg-card/40 backdrop-blur-sm rounded-lg p-6">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
           <AHTMetrics />
         </div>
         
-        <div className="bg-card/40 backdrop-blur-sm rounded-lg p-6">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
           <HistoricalTrend />
         </div>
         
-        <div className="bg-card/40 backdrop-blur-sm rounded-lg p-6">
+        <div className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8">
           <TeamDashboard />
         </div>
       </div>

@@ -43,12 +43,15 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <AppSidebar />
         <div className="flex-1 overflow-auto">
           <motion.div 
-            className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 space-y-8"
+            className="max-w-[1800px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <motion.div variants={containerVariants} className="bg-card/50 backdrop-blur-sm rounded-lg p-4">
+            <motion.div 
+              variants={containerVariants} 
+              className="bg-card/30 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-4"
+            >
               <Breadcrumbs />
             </motion.div>
             
@@ -56,7 +59,10 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               <DashboardHeader canEdit={canUploadData} />
             </motion.div>
 
-            <motion.div variants={containerVariants} className="bg-card/30 backdrop-blur-sm rounded-lg p-6 space-y-6">
+            <motion.div 
+              variants={containerVariants} 
+              className="bg-card/20 backdrop-blur-sm rounded-lg border border-border/50 shadow-lg p-8 space-y-8"
+            >
               <DashboardControls 
                 canUploadData={canUploadData}
                 onDateRangeChange={(startDate, endDate) => {
