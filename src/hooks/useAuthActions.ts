@@ -6,6 +6,21 @@ export const useAuthActions = () => {
   const signIn = async (email: string, password: string) => {
     try {
       console.log("Attempting sign in with email:", email);
+      
+      // First, check if the user exists
+      const { data: userExists } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .single();
+
+      if (!userExists) {
+        console.log("User not found:", email);
+        toast.error("No account found with this email. Please register first.");
+        return;
+      }
+
+      // Attempt to sign in
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -13,8 +28,12 @@ export const useAuthActions = () => {
 
       if (error) {
         console.error("Sign in error:", error);
-        if (error.message === "Invalid login credentials") {
-          toast.error("Invalid email or password. Please try again.");
+        
+        // Handle specific error cases
+        if (error.message.includes("Invalid login credentials")) {
+          toast.error("Incorrect password. Please try again.");
+        } else if (error.message.includes("Email not confirmed")) {
+          toast.error("Please confirm your email address before signing in.");
         } else {
           toast.error("An error occurred during login. Please try again.");
         }
@@ -35,13 +54,25 @@ export const useAuthActions = () => {
     try {
       console.log("Starting registration process for email:", email);
       
-      // First, attempt to sign up the user
+      // Check if user already exists
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('email')
+        .eq('email', email)
+        .single();
+
+      if (existingUser) {
+        toast.error("An account with this email already exists. Please sign in instead.");
+        return;
+      }
+
+      // Attempt to sign up the user
       const signUpResponse = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            role: role // Store role in auth metadata
+            role: role
           }
         }
       });
@@ -59,7 +90,7 @@ export const useAuthActions = () => {
 
       console.log("User created successfully, creating profile...");
 
-      // Then create the user profile
+      // Create the user profile
       const { error: profileError } = await supabase.rpc('create_new_user', {
         user_id: user.id,
         user_email: email,
@@ -68,13 +99,12 @@ export const useAuthActions = () => {
 
       if (profileError) {
         console.error("Error creating user profile:", profileError);
-        // Even if profile creation fails, the user was created
         toast.error("Account created but profile setup failed. Please contact support.");
         return;
       }
 
       console.log("Registration completed successfully");
-      toast.success("Registration successful! Please check your email.");
+      toast.success("Registration successful! Please check your email for confirmation.");
     } catch (error: any) {
       console.error("Registration error:", error);
       toast.error(error.message || "Registration failed");
