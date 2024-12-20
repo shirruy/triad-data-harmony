@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { DashboardTitle } from "./dashboard/DashboardTitle";
 import { DashboardActions } from "./dashboard/DashboardActions";
+import { toast } from "sonner";
 
 interface DashboardHeaderProps {
   onRefresh?: () => void;
@@ -9,7 +10,17 @@ interface DashboardHeaderProps {
 }
 
 export const DashboardHeader = ({ onRefresh, canEdit }: DashboardHeaderProps) => {
-  const { userData } = useAuth();
+  const { userData, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Successfully signed out");
+    } catch (error) {
+      console.error("Sign out error:", error);
+      toast.error("Error signing out. Please try again.");
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
@@ -20,7 +31,7 @@ export const DashboardHeader = ({ onRefresh, canEdit }: DashboardHeaderProps) =>
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <DashboardActions onRefresh={onRefresh} canEdit={canEdit} />
+          <DashboardActions onRefresh={onRefresh} canEdit={canEdit} onSignOut={handleSignOut} />
         </motion.div>
       </div>
     </div>

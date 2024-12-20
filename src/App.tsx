@@ -11,6 +11,7 @@ import { WavePerformance } from "@/components/performance/WavePerformance";
 import { TeamDashboard } from "@/components/team/TeamDashboard";
 import { Settings } from "@/components/settings/Settings";
 import { Profile } from "@/components/profile/Profile";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,41 +25,57 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme" attribute="class">
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <Router>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              } />
               <Route path="/total-calls" element={
-                <DashboardLayout>
-                  <TotalCallsView />
-                </DashboardLayout>
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <TotalCallsView />
+                  </DashboardLayout>
+                </ProtectedRoute>
               } />
               <Route path="/agent-performance" element={
-                <DashboardLayout>
-                  <AgentPerformance />
-                </DashboardLayout>
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <AgentPerformance />
+                  </DashboardLayout>
+                </ProtectedRoute>
               } />
               <Route path="/wave-performance" element={
-                <DashboardLayout>
-                  <WavePerformance />
-                </DashboardLayout>
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <WavePerformance />
+                  </DashboardLayout>
+                </ProtectedRoute>
               } />
               <Route path="/team-performance" element={
-                <DashboardLayout>
-                  <TeamDashboard />
-                </DashboardLayout>
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <TeamDashboard />
+                  </DashboardLayout>
+                </ProtectedRoute>
               } />
               <Route path="/settings" element={
-                <DashboardLayout>
-                  <Settings />
-                </DashboardLayout>
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <Settings />
+                  </DashboardLayout>
+                </ProtectedRoute>
               } />
               <Route path="/profile" element={
-                <DashboardLayout>
-                  <Profile />
-                </DashboardLayout>
+                <ProtectedRoute>
+                  <DashboardLayout>
+                    <Profile />
+                  </DashboardLayout>
+                </ProtectedRoute>
               } />
             </Routes>
             <Toaster position="top-right" />
