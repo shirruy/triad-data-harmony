@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Index = () => {
   const [startDate, setStartDate] = useState<Date>();
@@ -89,30 +90,44 @@ const Index = () => {
             <TabsTrigger value="historical">Historical</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="overview" className="mt-6 space-y-6">
+          <TabsContent value="overview" className="mt-6">
             <Card className="p-6">
-              <AHTAgentView startDate={startDate} endDate={endDate} />
-            </Card>
-            <Card className="p-6">
-              <PerformanceMetrics startDate={startDate} endDate={endDate} />
+              <ScrollArea className="h-[600px] w-full rounded-md">
+                <div className="space-y-6 p-4">
+                  <AHTAgentView startDate={startDate} endDate={endDate} />
+                  <PerformanceMetrics startDate={startDate} endDate={endDate} />
+                </div>
+              </ScrollArea>
             </Card>
           </TabsContent>
 
           <TabsContent value="performance" className="mt-6">
             <Card className="p-6">
-              <TeamCollaboration startDate={startDate} endDate={endDate} />
+              <ScrollArea className="h-[600px] w-full rounded-md">
+                <div className="p-4">
+                  <TeamCollaboration startDate={startDate} endDate={endDate} />
+                </div>
+              </ScrollArea>
             </Card>
           </TabsContent>
 
           <TabsContent value="team" className="mt-6">
             <Card className="p-6">
-              <TeamDashboard startDate={startDate} endDate={endDate} />
+              <ScrollArea className="h-[600px] w-full rounded-md">
+                <div className="p-4">
+                  <TeamDashboard startDate={startDate} endDate={endDate} />
+                </div>
+              </ScrollArea>
             </Card>
           </TabsContent>
 
           <TabsContent value="historical" className="mt-6">
             <Card className="p-6">
-              <HistoricalTrend startDate={startDate} endDate={endDate} />
+              <ScrollArea className="h-[600px] w-full rounded-md">
+                <div className="p-4">
+                  <HistoricalTrend startDate={startDate} endDate={endDate} />
+                </div>
+              </ScrollArea>
             </Card>
           </TabsContent>
         </Tabs>
