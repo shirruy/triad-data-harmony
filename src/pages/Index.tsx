@@ -9,10 +9,34 @@ import { AHTDateRangeSelector } from "@/components/aht/AHTDateRangeSelector";
 import { useState } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+
+  // Check if data exists in the tables
+  const { isLoading: isDataLoading } = useQuery({
+    queryKey: ['check-data-exists'],
+    queryFn: async () => {
+      const [metricsResult, agentResult, teamResult] = await Promise.all([
+        supabase.from('aht_metrics').select('count').single(),
+        supabase.from('aht_agent_data').select('count').single(),
+        supabase.from('aht_team_data').select('count').single()
+      ]);
+
+      if (metricsResult.error || agentResult.error || teamResult.error) {
+        console.error('Error checking data:', { metricsResult, agentResult, teamResult });
+        toast.error('Error checking data availability');
+        return false;
+      }
+
+      return true;
+    }
+  });
 
   const handleDateRangeChange = (start: Date | undefined, end: Date | undefined) => {
     setStartDate(start);
@@ -21,6 +45,24 @@ const Index = () => {
       toast.success(`Data filtered from ${format(start, 'MMM d, yyyy')} to ${format(end, 'MMM d, yyyy')}`);
     }
   };
+
+  if (isDataLoading) {
+    return (
+      <DashboardLayout>
+        <div className="space-y-4 sm:space-y-8">
+          <Card className="p-6">
+            <Skeleton className="h-8 w-full" />
+          </Card>
+          <Card className="p-6">
+            <Skeleton className="h-32 w-full" />
+          </Card>
+          <Card className="p-6">
+            <Skeleton className="h-48 w-full" />
+          </Card>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>

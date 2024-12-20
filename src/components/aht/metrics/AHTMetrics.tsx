@@ -4,6 +4,8 @@ import { useAHTMetrics } from "@/hooks/aht/useAHTMetrics";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 interface AHTMetricsProps {
   startDate?: Date;
@@ -11,7 +13,7 @@ interface AHTMetricsProps {
 }
 
 export const AHTMetrics = ({ startDate, endDate }: AHTMetricsProps) => {
-  const { metrics } = useAHTMetrics(startDate, endDate);
+  const { metrics, isLoading, error, refetch } = useAHTMetrics(startDate, endDate);
   const navigate = useNavigate();
 
   const container = {
@@ -40,6 +42,38 @@ export const AHTMetrics = ({ startDate, endDate }: AHTMetricsProps) => {
         break;
     }
   };
+
+  if (error) {
+    return (
+      <Alert variant="destructive" className="mb-4">
+        <AlertDescription className="flex items-center justify-between">
+          <span>Error loading metrics data. Please try again.</span>
+          <button 
+            onClick={() => refetch()} 
+            className="flex items-center gap-2 text-sm underline"
+          >
+            <ReloadIcon className="h-4 w-4" />
+            Retry
+          </button>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <motion.div 
+        variants={container}
+        initial="hidden"
+        animate="show"
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"
+      >
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="h-32 bg-card/50 animate-pulse rounded-lg" />
+        ))}
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { useQuery } from "@tanstack/react-query";
 
 interface Metrics {
   callsOffered: number;
@@ -9,31 +10,34 @@ interface Metrics {
 }
 
 export const useAHTMetrics = (startDate?: Date, endDate?: Date) => {
-  const [metrics, setMetrics] = useState<Metrics>({
-    callsOffered: 0,
-    answeredCalls: 0,
-    abandonCalls: 0,
-  });
+  const { data: metrics, isLoading, error, refetch } = useQuery({
+    queryKey: ['aht-metrics', startDate, endDate],
+    queryFn: async () => {
+      try {
+        let query = supabase
+          .from('aht_metrics')
+          .select('calls_offered, answered_calls, abandon_calls');
 
-  const fetchMetrics = async () => {
-    try {
-      let query = supabase
-        .from('aht_metrics')
-        .select('calls_offered, answered_calls, abandon_calls');
+        if (startDate && endDate) {
+          query = query
+            .gte('created_at', format(startDate, 'yyyy-MM-dd'))
+            .lte('created_at', format(endDate, 'yyyy-MM-dd'));
+        }
 
-      if (startDate && endDate) {
-        query = query
-          .gte('created_at', format(startDate, 'yyyy-MM-dd'))
-          .lte('created_at', format(endDate, 'yyyy-MM-dd'));
-      }
+        const { data, error } = await query;
 
-      const { data, error } = await query;
+        if (error) {
+          throw error;
+        }
 
-      if (error) {
-        throw error;
-      }
+        if (!data || data.length === 0) {
+          return {
+            callsOffered: 0,
+            answeredCalls: 0,
+            abandonCalls: 0,
+          };
+        }
 
-      if (data && data.length > 0) {
         // Sum up all metrics for the selected period
         const totals = data.reduce((acc, curr) => ({
           callsOffered: acc.callsOffered + curr.calls_offered,
@@ -45,16 +49,18 @@ export const useAHTMetrics = (startDate?: Date, endDate?: Date) => {
           abandonCalls: 0,
         });
 
-        setMetrics(totals);
+        return totals;
+      } catch (error) {
+        console.error('Error fetching metrics:', error);
+        throw error;
       }
-    } catch (error) {
-      console.error('Error fetching metrics:', error);
     }
+  });
+
+  return { 
+    metrics: metrics || { callsOffered: 0, answeredCalls: 0, abandonCalls: 0 },
+    isLoading,
+    error,
+    refetch
   };
-
-  useEffect(() => {
-    fetchMetrics();
-  }, [startDate, endDate]);
-
-  return { metrics };
 };
